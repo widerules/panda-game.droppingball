@@ -11,12 +11,17 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 
+/**
+ * A surface view to give the game a canvas. 
+ * @author Programus
+ *
+ */
 public class GameSurfaceView extends SurfaceView implements Runnable, Callback, Const {
+	private final static int REST = 10;
 	private SurfaceHolder sfh; 
 	private boolean running; 
 	private Game game;
 	
-
 	public GameSurfaceView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		
@@ -48,16 +53,19 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 		this.running = true;
 		while(this.running) {
 			this.paint(); 
-			try {
-				Thread.sleep(40);
-			} catch (InterruptedException e) {
-			} 
+			if (REST > 0) {
+				try {
+					Thread.sleep(REST);
+				} catch (InterruptedException e) { } 
+			}
 		}
 	}
 
 	private void paint() {
 		Canvas canvas = this.sfh.lockCanvas(); 
 		
+		this.game.setPaintTime(System.nanoTime()); 
+		this.game.calcFrameData(); 
 		this.game.drawFrame(canvas); 
 		
 		sfh.unlockCanvasAndPost(canvas); 
