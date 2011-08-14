@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="normalReturn" format="integer" type="integer">0</item>
+    <item format="integer" type="integer" name="gameClassInitErrorReturn">1</item>
+    
+</resources>

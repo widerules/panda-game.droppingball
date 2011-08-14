@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gameClass">org.programus.android.game.dropball.DroppingBallGame</string>
+    <item format="integer" type="integer" name="restTime">5</item>
+    
+</resources>

@@ -4,27 +4,31 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.programus.android.game._engine.utils.Const;
-import org.programus.android.game.dropball.GameStatus;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.util.Log;
 import android.view.MotionEvent;
 
 public class Game implements Const {
-	
+	protected Context context; 
 	protected int w;
 	protected int h;
 	protected long currNanoTime;
 	protected long prevNanoTime;
 	
-	private GameStatus status; 
-	protected Map<GameStatus, GameScene> scenes = new HashMap<GameStatus, GameScene>(); 
+	private int status; 
+	protected Map<Integer, GameScene> scenes = new HashMap<Integer, GameScene>(); 
+	
+	public Game(Context context) {
+		this.context = context; 
+	}
 
-	public GameStatus getStatus() {
+	public int getStatus() {
 		return status;
 	}
 
-	public void setStatus(GameStatus status) {
+	public void setStatus(int status) {
 		this.status = status;
 	}
 

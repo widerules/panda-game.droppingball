@@ -1,8 +1,11 @@
 package org.programus.android.game._engine.ui;
 
+import java.lang.reflect.Constructor;
+
+import org.programus.android.game.R;
 import org.programus.android.game._engine.core.Game;
 import org.programus.android.game._engine.utils.Const;
-import org.programus.android.game.dropball.DroppingBallGame;
+import org.programus.android.game._engine.utils.GameUtilities;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -10,8 +13,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
-import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
+import android.view.SurfaceHolder.Callback;
+import android.widget.Toast;
 
 /**
  * A surface view to give the game a canvas. 
@@ -19,7 +23,7 @@ import android.view.SurfaceView;
  *
  */
 public class GameSurfaceView extends SurfaceView implements Runnable, Callback, Const {
-	private final static int REST = 5;
+	private int restTime; 
 	private SurfaceHolder sfh; 
 	private boolean running; 
 	private Game game;
@@ -27,10 +31,20 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 	public GameSurfaceView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		
+		this.restTime = context.getResources().getInteger(R.integer.restTime); 
 		this.setKeepScreenOn(true); 
 		this.sfh = this.getHolder();
 		this.sfh.addCallback(this); 
-		this.game = new DroppingBallGame(); 
+		String gameClassName = context.getResources().getString(R.string.gameClass); 
+		try {
+			Class<?> gameClass = this.getClass().getClassLoader().loadClass(gameClassName);
+			Constructor<?> constructor = gameClass.getConstructor(Context.class); 
+			this.game = (Game) constructor.newInstance(context); 
+		} catch (Exception e) {
+			Toast.makeText(context, R.string.gameInitErrorMessage, Toast.LENGTH_LONG).show(); 
+			Log.d(TAG, "Exception when init game class.", e); 
+			GameUtilities.ExitApplication(context); 
+		}
 	}
 
 	@Override
@@ -55,9 +69,9 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 		this.running = true;
 		while(this.running) {
 			this.paint(); 
-			if (REST > 0) {
+			if (restTime > 0) {
 				try {
-					Thread.sleep(REST);
+					Thread.sleep(restTime);
 				} catch (InterruptedException e) { } 
 			}
 		}

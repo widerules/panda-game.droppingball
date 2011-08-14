@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="PAUSED" format="integer" type="integer">0</item>
+    <item name="PLAYING" format="integer" type="integer">1</item>
+    
+</resources>
