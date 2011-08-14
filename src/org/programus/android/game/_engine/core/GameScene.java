@@ -1,4 +1,4 @@
-package org.programus.android.game.core;
+package org.programus.android.game._engine.core;
 
 import android.graphics.Canvas;
 

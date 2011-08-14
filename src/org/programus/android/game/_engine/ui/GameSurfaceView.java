@@ -1,12 +1,14 @@
-package org.programus.android.game.ui;
+package org.programus.android.game._engine.ui;
 
-import org.programus.android.game.Const;
-import org.programus.android.game.core.Game;
-import org.programus.android.game.drop.DroppingBallGame;
+import org.programus.android.game._engine.core.Game;
+import org.programus.android.game._engine.utils.Const;
+import org.programus.android.game.dropball.DroppingBallGame;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
@@ -69,5 +71,12 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 		this.game.drawFrame(canvas); 
 		
 		sfh.unlockCanvasAndPost(canvas); 
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		Log.d(TAG, "TouchedEvent:" + event); 
+		
+		return game.onTouchEvent(event);
 	}
 }

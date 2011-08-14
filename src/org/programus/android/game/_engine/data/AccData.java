@@ -1,4 +1,4 @@
-package org.programus.android.game.data;
+package org.programus.android.game._engine.data;
 
 /**
  * A class to store the accelerometer data. 

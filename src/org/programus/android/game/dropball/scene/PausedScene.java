@@ -1,8 +1,8 @@
-package org.programus.android.game.drop.scene;
+package org.programus.android.game.dropball.scene;
 
-import org.programus.android.game.Const;
-import org.programus.android.game.core.Game;
-import org.programus.android.game.core.GameScene;
+import org.programus.android.game._engine.core.Game;
+import org.programus.android.game._engine.core.GameScene;
+import org.programus.android.game._engine.utils.Const;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

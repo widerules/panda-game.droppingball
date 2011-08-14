@@ -1,13 +1,14 @@
-package org.programus.android.game.core;
+package org.programus.android.game._engine.core;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.programus.android.game.Const;
-import org.programus.android.game.drop.GameStatus;
+import org.programus.android.game._engine.utils.Const;
+import org.programus.android.game.dropball.GameStatus;
 
 import android.graphics.Canvas;
 import android.util.Log;
+import android.view.MotionEvent;
 
 public class Game implements Const {
 	
@@ -59,6 +60,10 @@ public class Game implements Const {
 		for (GameScene scene : scenes.values()) {
 			scene.calcFrameData(); 
 		}
+	}
+	
+	public boolean onTouchEvent(MotionEvent event) {
+		return false;
 	}
 
 }

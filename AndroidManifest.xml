@@ -6,8 +6,7 @@
     <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="7"/>
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
-        <activity android:name=".MainActivity"
-                  android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:screenOrientation="portrait" android:configChanges="keyboardHidden|orientation">
+        <activity android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:screenOrientation="portrait" android:configChanges="keyboardHidden|orientation" android:name="._engine.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
