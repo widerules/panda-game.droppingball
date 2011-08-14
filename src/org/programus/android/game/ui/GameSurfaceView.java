@@ -17,7 +17,7 @@ import android.view.SurfaceView;
  *
  */
 public class GameSurfaceView extends SurfaceView implements Runnable, Callback, Const {
-	private final static int REST = 10;
+	private final static int REST = 5;
 	private SurfaceHolder sfh; 
 	private boolean running; 
 	private Game game;
