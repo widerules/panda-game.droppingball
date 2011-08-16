@@ -2,5 +2,8 @@
 <resources>
     <string name="gameClass">org.programus.android.game.dropball.DroppingBallGame</string>
     <item format="integer" type="integer" name="restTime">5</item>
+    <dimen name="ballRadius">20px</dimen>
+    <color name="foreColor">#000</color>
+    <color name="backColor">#fff</color>
     
 </resources>

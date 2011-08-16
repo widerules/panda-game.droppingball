@@ -22,6 +22,11 @@ public class DroppingBallGame extends Game implements Const {
 	}
 	
 	@Override
+	public void start() {
+		this.setStatus(STATUS_PAUSED); 
+	}
+	
+	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
 			if (this.getStatus() == STATUS_PAUSED) {

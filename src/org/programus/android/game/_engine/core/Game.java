@@ -23,6 +23,10 @@ public class Game implements Const {
 	public Game(Context context) {
 		this.context = context; 
 	}
+	
+	public Context getContext() {
+		return context;
+	}
 
 	public int getStatus() {
 		return status;
