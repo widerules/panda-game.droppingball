@@ -3,6 +3,7 @@ package org.programus.android.game.dropball;
 import org.programus.android.game.R;
 import org.programus.android.game._engine.core.Game;
 import org.programus.android.game._engine.utils.Const;
+import org.programus.android.game.dropball.objects.ObjectCollection;
 import org.programus.android.game.dropball.scene.PausedScene;
 import org.programus.android.game.dropball.scene.PlayingScene;
 
@@ -12,8 +13,13 @@ import android.view.MotionEvent;
 public class DroppingBallGame extends Game implements Const {
 	public final int STATUS_PAUSED; 
 	public final int STATUS_PLAYING;
+	
+	private ObjectCollection oc; 
+	
 	public DroppingBallGame(Context context) {
 		super(context); 
+		this.oc = new ObjectCollection(this); 
+		
 		STATUS_PAUSED = context.getResources().getInteger(R.integer.PAUSED); 
 		STATUS_PLAYING = context.getResources().getInteger(R.integer.PLAYING); 
 		this.setStatus(STATUS_PAUSED); 
@@ -21,9 +27,14 @@ public class DroppingBallGame extends Game implements Const {
 		this.scenes.put(STATUS_PLAYING, new PlayingScene(this)); 
 	}
 	
+	public ObjectCollection getObjects() {
+		return this.oc; 
+	}
+	
 	@Override
 	public void start() {
 		this.setStatus(STATUS_PAUSED); 
+		this.oc.reset(); 
 	}
 	
 	@Override

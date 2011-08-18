@@ -2,50 +2,99 @@ package org.programus.android.game.dropball.objects;
 
 import org.programus.android.game.R;
 import org.programus.android.game._engine.core.Game;
+import org.programus.android.game._engine.data.AccData;
+import org.programus.android.game._engine.objects.Sprite;
+import org.programus.android.game._engine.utils.Const;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.util.Log;
 
-public class Ball {
-	private RectF bounds; 
+public class Ball extends Sprite implements Const {
 	private Paint paint;
 	private Game game; 
+	
+	private AccData acc; 
+	
+	private float r; 
 	private float speedX;
 	private float speedY; 
 	
 	public Ball(Game game) {
 		this.game = game; 
+		this.acc = AccData.getInstance(); 
 		
 		Resources res = this.game.getContext().getResources(); 
-		float r = res.getDimension(R.dimen.ballRadius); 
-		bounds = new RectF(-r, -r, r, r); 
+		r = res.getDimension(R.dimen.ballRadius); 
+		bounds.set(-r, -r, r, r); 
 		
 		int foreColor = res.getColor(R.color.foreColor); 
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG); 
 		paint.setColor(foreColor); 
+		paint.setStyle(Paint.Style.FILL); 
 	}
 	
-	public void move(float dx, float dy) {
-		bounds.offset(dx, dy); 
+	@Override
+	public void reset() {
+		int w = game.getW(); 
+		this.moveTo(w >> 1, 200); 
 	}
 	
-	public void moveTo(float centerX, float centerY) {
-		float x = bounds.centerX(); 
-		float y = bounds.centerY(); 
-		this.move(centerX - x, centerY - y); 
+	@Override
+	public void stepCalc(long dt) {
+		float ax = this.acc.getScreenGx(); 
+		float ay = this.acc.getScreenGy(); 
+		this.speedX += ax * dt; 
+		this.speedY += ay * dt; 
+		
+		float vx2 = speedX * speedX; 
+		float vy2 = speedY * speedY; 
+		float v2 = vx2 + vy2; 
+		if (v2 > MAX_SPEED_2) {
+			float mvx2 = vx2 * MAX_SPEED_2 / v2; 
+			float mvy2 = vy2 * MAX_SPEED_2 / v2; 
+			speedX = (float) (speedX > 0 ? Math.sqrt(mvx2) : -Math.sqrt(mvx2)); 
+			speedY = (float) (speedY > 0 ? Math.sqrt(mvy2) : -Math.sqrt(mvy2)); 
+		}
+		
+		this.move(speedX, speedY); 
+		Log.d(TAG, "v=" + speedX + "," + speedY + "/" + this.bounds); 
+		
+		int w = this.game.getW(); 
+		int h = this.game.getH(); 
+		if (this.bounds.top < 0 && this.speedY < 0) {
+			this.speedY = -this.speedY * .9F; 
+			this.moveTo(this.bounds.centerX(), r); 
+		}
+		if (this.bounds.bottom > h && this.speedY > 0) {
+			this.speedY = -this.speedY * .9F; 
+			this.moveTo(this.bounds.centerX(), h - r); 
+		}
+		if (this.bounds.right < 0) {
+			this.move(w, 0); 
+		}
+		if (this.bounds.left > w) {
+			this.move(-w, 0); 
+		}
 	}
 	
-	public RectF getBounds() {
-		return this.bounds; 
-	}
-	
-	public RectF copyBounds() {
-		return new RectF(this.bounds); 
-	}
-	
+	@Override
 	public void draw(Canvas canvas) {
 		canvas.drawOval(bounds, paint); 
+		RectF altBounds = null; 
+		int w = canvas.getWidth(); 
+		if (bounds.left < 0) {
+			altBounds = new RectF(bounds); 
+			altBounds.offset(w, 0); 
+		}
+		if (bounds.right > w) {
+			altBounds = new RectF(bounds); 
+			altBounds.offset(-w, 0); 
+		}
+		if (altBounds != null) {
+			canvas.drawOval(altBounds, paint); 
+		}
 	}
 }

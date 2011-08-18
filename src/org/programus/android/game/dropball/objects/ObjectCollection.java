@@ -2,9 +2,6 @@ package org.programus.android.game.dropball.objects;
 
 import org.programus.android.game._engine.core.Game;
 
-import android.content.Context;
-import android.content.res.Resources;
-
 public class ObjectCollection {
 	private Game game; 
 	
@@ -12,10 +9,18 @@ public class ObjectCollection {
 	
 	public ObjectCollection(Game game) {
 		this.game = game; 
+		this.initObjects(); 
 	}
 	
 	private void initObjects() {
-		Context context = game.getContext(); 
-		Resources res = context.getResources(); 
+		this.ball = new Ball(this.game); 
+	}
+
+	public Ball getBall() {
+		return ball;
+	}
+
+	public void reset() {
+		this.ball.reset(); 
 	}
 }

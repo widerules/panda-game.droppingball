@@ -1,11 +1,13 @@
 package org.programus.android.game._engine.data;
 
+import org.programus.android.game._engine.utils.Const;
+
 /**
  * A class to store the accelerometer data. 
  * @author Programus
  *
  */
-public class AccData {
+public class AccData implements Const {
 	private static AccData data = new AccData(); 
 	private AccData() {}
 	public static AccData getInstance() {
@@ -29,10 +31,10 @@ public class AccData {
 		return gx;
 	}
 	public synchronized float getScreenGx() {
-		return -gx * RATE;
+		return -gx * RATE * PX_RATE;
 	}
 	public synchronized float getScreenGy() {
-		return gy * RATE; 
+		return gy * RATE * PX_RATE; 
 	}
 	public synchronized float getGy() {
 		return gy;

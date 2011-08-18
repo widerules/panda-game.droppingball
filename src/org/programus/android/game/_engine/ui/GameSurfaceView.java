@@ -79,10 +79,11 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 
 	private void paint() {
 		Canvas canvas = this.sfh.lockCanvas(); 
-		
-		this.game.setPaintTime(System.nanoTime()); 
-		this.game.calcFrameData(); 
-		this.game.drawFrame(canvas); 
+		if (this.game != null) {
+			this.game.setPaintTime(System.currentTimeMillis()); 
+			this.game.calcFrameData(); 
+			this.game.drawFrame(canvas); 			
+		}
 		
 		sfh.unlockCanvasAndPost(canvas); 
 	}
