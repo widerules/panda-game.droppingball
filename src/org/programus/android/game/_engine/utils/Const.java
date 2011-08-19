@@ -7,4 +7,6 @@ public interface Const {
 	float PX_RATE = 800 / 0.093F / 1000000; 
 	
 	float MAX_SPEED_2 = 2500; 
+	
+	float F_RATE = .000003F; 
 }

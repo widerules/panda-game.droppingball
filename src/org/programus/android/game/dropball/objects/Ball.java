@@ -44,20 +44,20 @@ public class Ball extends Sprite implements Const {
 	
 	@Override
 	public void stepCalc(long dt) {
-		float ax = this.acc.getScreenGx(); 
-		float ay = this.acc.getScreenGy(); 
+		float ax = this.acc.getScreenGx() - this.getFriction(this.speedX); 
+		float ay = this.acc.getScreenGy() - this.getFriction(this.speedY); 
 		this.speedX += ax * dt; 
 		this.speedY += ay * dt; 
 		
-		float vx2 = speedX * speedX; 
-		float vy2 = speedY * speedY; 
-		float v2 = vx2 + vy2; 
-		if (v2 > MAX_SPEED_2) {
-			float mvx2 = vx2 * MAX_SPEED_2 / v2; 
-			float mvy2 = vy2 * MAX_SPEED_2 / v2; 
-			speedX = (float) (speedX > 0 ? Math.sqrt(mvx2) : -Math.sqrt(mvx2)); 
-			speedY = (float) (speedY > 0 ? Math.sqrt(mvy2) : -Math.sqrt(mvy2)); 
-		}
+//		float vx2 = speedX * speedX; 
+//		float vy2 = speedY * speedY; 
+//		float v2 = vx2 + vy2; 
+//		if (v2 > MAX_SPEED_2) {
+//			float mvx2 = vx2 * MAX_SPEED_2 / v2; 
+//			float mvy2 = vy2 * MAX_SPEED_2 / v2; 
+//			speedX = (float) (speedX > 0 ? Math.sqrt(mvx2) : -Math.sqrt(mvx2)); 
+//			speedY = (float) (speedY > 0 ? Math.sqrt(mvy2) : -Math.sqrt(mvy2)); 
+//		}
 		
 		this.move(speedX, speedY); 
 		Log.d(TAG, "v=" + speedX + "," + speedY + "/" + this.bounds); 
@@ -65,11 +65,11 @@ public class Ball extends Sprite implements Const {
 		int w = this.game.getW(); 
 		int h = this.game.getH(); 
 		if (this.bounds.top < 0 && this.speedY < 0) {
-			this.speedY = -this.speedY * .9F; 
+			this.speedY = -this.speedY; 
 			this.moveTo(this.bounds.centerX(), r); 
 		}
 		if (this.bounds.bottom > h && this.speedY > 0) {
-			this.speedY = -this.speedY * .9F; 
+			this.speedY = -this.speedY; 
 			this.moveTo(this.bounds.centerX(), h - r); 
 		}
 		if (this.bounds.right < 0) {
@@ -96,5 +96,9 @@ public class Ball extends Sprite implements Const {
 		if (altBounds != null) {
 			canvas.drawOval(altBounds, paint); 
 		}
+	}
+	
+	private float getFriction(float speed) {
+		return F_RATE * speed * speed * speed; 
 	}
 }
