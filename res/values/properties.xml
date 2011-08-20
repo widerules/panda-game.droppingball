@@ -3,6 +3,12 @@
     <string name="gameClass">org.programus.android.game.dropball.DroppingBallGame</string>
     <item format="integer" type="integer" name="restTime">5</item>
     <dimen name="ballRadius">10px</dimen>
-    <color name="foreColor">#000</color>
+    <dimen name="frictionRate">.000003px</dimen><color name="foreColor">#000</color>
     <color name="backColor">#fff</color>
+    <dimen name="boardThickness">30px</dimen>
+    <dimen name="boardMinDistance">150px</dimen>
+    <dimen name="boardMaxDistance">450px</dimen>
+    <dimen name="boardInitSpeed">0.00001px</dimen>
+    <dimen name="boardAcceleration">0.00001px</dimen>
+    
 </resources>

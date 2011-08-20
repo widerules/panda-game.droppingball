@@ -1,14 +1,13 @@
 package org.programus.android.game._engine.objects;
 
+import org.programus.android.game._engine.utils.Const;
+
 import android.graphics.Canvas;
 import android.graphics.RectF;
 
-public abstract class Sprite {
+public abstract class Sprite implements SpriteLike, Const {
 	protected RectF bounds = new RectF(); 
 
-	public abstract void reset();
-	public abstract void stepCalc(long dt);
-	
 	public void move(float dx, float dy) {
 		bounds.offset(dx, dy); 
 	}

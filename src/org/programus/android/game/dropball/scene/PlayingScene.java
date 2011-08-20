@@ -23,6 +23,7 @@ public class PlayingScene extends GameScene implements Const {
 	protected void drawFrame(Canvas canvas) {
 		canvas.drawColor(this.bkColor); 
 		dGame.getObjects().getBall().draw(canvas); 
+		dGame.getObjects().getBoardGroup().draw(canvas); 
 	}
 
 	@Override
@@ -30,6 +31,7 @@ public class PlayingScene extends GameScene implements Const {
 		if (dGame.getStatus() == dGame.STATUS_PLAYING) {
 			Log.d(TAG, "dt=" + dt); 
 			dGame.getObjects().getBall().stepCalc(dt); 
+			dGame.getObjects().getBoardGroup().stepCalc(dt); 
 		}
 	}
 }

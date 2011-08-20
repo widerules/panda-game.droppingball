@@ -3,7 +3,6 @@ package org.programus.android.game.dropball.objects;
 import org.programus.android.game.R;
 import org.programus.android.game._engine.core.Game;
 import org.programus.android.game._engine.data.AccData;
-import org.programus.android.game._engine.objects.Sprite;
 import org.programus.android.game._engine.utils.Const;
 
 import android.content.res.Resources;
@@ -12,7 +11,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.Log;
 
-public class Ball extends Sprite implements Const {
+public class Ball extends DroppingSprite implements Const {
 	private Paint paint;
 	private Game game; 
 	
@@ -34,6 +33,7 @@ public class Ball extends Sprite implements Const {
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG); 
 		paint.setColor(foreColor); 
 		paint.setStyle(Paint.Style.FILL); 
+		DroppingSprite.initFrictionRate(res); 
 	}
 	
 	@Override
@@ -48,16 +48,6 @@ public class Ball extends Sprite implements Const {
 		float ay = this.acc.getScreenGy() - this.getFriction(this.speedY); 
 		this.speedX += ax * dt; 
 		this.speedY += ay * dt; 
-		
-//		float vx2 = speedX * speedX; 
-//		float vy2 = speedY * speedY; 
-//		float v2 = vx2 + vy2; 
-//		if (v2 > MAX_SPEED_2) {
-//			float mvx2 = vx2 * MAX_SPEED_2 / v2; 
-//			float mvy2 = vy2 * MAX_SPEED_2 / v2; 
-//			speedX = (float) (speedX > 0 ? Math.sqrt(mvx2) : -Math.sqrt(mvx2)); 
-//			speedY = (float) (speedY > 0 ? Math.sqrt(mvy2) : -Math.sqrt(mvy2)); 
-//		}
 		
 		this.move(speedX, speedY); 
 		Log.d(TAG, "v=" + speedX + "," + speedY + "/" + this.bounds); 
@@ -99,6 +89,6 @@ public class Ball extends Sprite implements Const {
 	}
 	
 	private float getFriction(float speed) {
-		return F_RATE * speed * speed * speed; 
+		return frictionRate * speed * speed * speed; 
 	}
 }
