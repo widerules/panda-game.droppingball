@@ -3,4 +3,5 @@
     <string name="app_name">DroppingBall</string>
     <string name="gameInitErrorMessage">Main game class initializing error, the package might be damaged. Please download again.</string>
     <string name="appExit">APP_EXIT</string>
+    <string name="paused">PAUSED</string>
 </resources>

@@ -5,10 +5,12 @@
     <dimen name="ballRadius">10px</dimen>
     <dimen name="frictionRate">.000003px</dimen><color name="foreColor">#000</color>
     <color name="backColor">#fff</color>
-    <dimen name="boardThickness">30px</dimen>
+    <color name="pauseBkColor">#444</color><color name="pausedTextColor">#88ffffff</color><dimen name="pausedTextSize">60px</dimen><dimen name="boardThickness">30px</dimen>
     <dimen name="boardMinDistance">50px</dimen>
     <dimen name="boardMaxDistance">400px</dimen>
     <dimen name="boardInitSpeed">1px</dimen>
     <dimen name="boardAcceleration">0.00001px</dimen>
+	
+    
     
 </resources>

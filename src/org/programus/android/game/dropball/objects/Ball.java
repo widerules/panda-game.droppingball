@@ -10,7 +10,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
-import android.util.Log;
 
 public class Ball extends DroppingSprite implements Const {
 	private Paint paint;
@@ -42,7 +41,7 @@ public class Ball extends DroppingSprite implements Const {
 	@Override
 	public void reset() {
 		int w = game.getW(); 
-		this.moveTo(w >> 1, 200); 
+		this.moveTo(w >> 1, game.getH() >> 3); 
 		this.speed.set(0, 0); 
 	}
 	

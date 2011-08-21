@@ -11,6 +11,11 @@ import org.programus.android.game.dropball.objects.BoardGroup;
 import android.graphics.Canvas;
 import android.graphics.RectF;
 
+/**
+ * The scene for playing.
+ * @author Programus
+ *
+ */
 public class PlayingScene extends GameScene implements Const {
 	private DroppingBallGame dGame; 
 	private int bkColor;
@@ -40,6 +45,7 @@ public class PlayingScene extends GameScene implements Const {
 			
 			if (this.gameOver(ball)) {
 				dGame.setStatus(dGame.STATUS_PAUSED); 
+				// reset game.
 				game.start(); 
 			}
 		}
