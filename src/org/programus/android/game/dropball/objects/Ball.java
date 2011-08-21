@@ -8,6 +8,7 @@ import org.programus.android.game._engine.utils.Const;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.Log;
 
@@ -17,13 +18,15 @@ public class Ball extends DroppingSprite implements Const {
 	
 	private AccData acc; 
 	
+	private BoardGroup boardGroup; 
+	
 	private float r; 
-	private float speedX;
-	private float speedY; 
+	private PointF speed; 
 	
 	public Ball(Game game) {
 		this.game = game; 
 		this.acc = AccData.getInstance(); 
+		this.speed = new PointF(); 
 		
 		Resources res = this.game.getContext().getResources(); 
 		r = res.getDimension(R.dimen.ballRadius); 
@@ -40,34 +43,44 @@ public class Ball extends DroppingSprite implements Const {
 	public void reset() {
 		int w = game.getW(); 
 		this.moveTo(w >> 1, 200); 
+		this.speed.set(0, 0); 
 	}
 	
 	@Override
 	public void stepCalc(long dt) {
-		float ax = this.acc.getScreenGx() - this.getFriction(this.speedX); 
-		float ay = this.acc.getScreenGy() - this.getFriction(this.speedY); 
-		this.speedX += ax * dt; 
-		this.speedY += ay * dt; 
+		float ax = this.acc.getScreenGx() - this.getFriction(this.speed.x); 
+		float ay = this.acc.getScreenGy() - this.getFriction(this.speed.y); 
+		this.speed.x += ax * dt; 
+		this.speed.y += ay * dt; 
 		
-		this.move(speedX, speedY); 
-		Log.d(TAG, "v=" + speedX + "," + speedY + "/" + this.bounds); 
+		PointF p1 = this.getCenter(); 
+		this.move(speed.x, speed.y); 
+//		Log.d(TAG, "v=" + speed + "/" + this.bounds); 
+		PointF p2 = this.getCenter(); 
+		
+		if (boardGroup != null) {
+			PointF impactPoint = boardGroup.getImpactPoint(r, p1, p2, speed); 
+			if (impactPoint != null) {
+				this.moveTo(impactPoint.x, impactPoint.y); 
+			}
+		}
 		
 		int w = this.game.getW(); 
-		int h = this.game.getH(); 
-		if (this.bounds.top < 0 && this.speedY < 0) {
-			this.speedY = -this.speedY; 
-			this.moveTo(this.bounds.centerX(), r); 
-		}
-		if (this.bounds.bottom > h && this.speedY > 0) {
-			this.speedY = -this.speedY; 
-			this.moveTo(this.bounds.centerX(), h - r); 
-		}
 		if (this.bounds.right < 0) {
 			this.move(w, 0); 
 		}
 		if (this.bounds.left > w) {
 			this.move(-w, 0); 
 		}
+		
+	}
+	
+	public void updageBoardGroup(BoardGroup bgroup) {
+		this.boardGroup = bgroup; 
+	}
+	
+	public PointF getCenter() {
+		return new PointF(this.bounds.centerX(), this.bounds.centerY()); 
 	}
 	
 	@Override

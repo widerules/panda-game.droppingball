@@ -7,6 +7,7 @@ import org.programus.android.game._engine.utils.Const;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.Paint.Style;
 
 public class Board extends DroppingSprite implements Const {
@@ -25,7 +26,7 @@ public class Board extends DroppingSprite implements Const {
 		this.fillPaint.setColor(foreColor); 
 		this.fillPaint.setStyle(Style.FILL); 
 		
-		if (Board.speed < 0.001F) {
+		if (Board.speed < 0.0000000001F) {
 			Board.speed = res.getDimension(R.dimen.boardInitSpeed); 
 			Board.acceleration = res.getDimension(R.dimen.boardAcceleration); 
 			DroppingSprite.initFrictionRate(res); 
@@ -47,7 +48,7 @@ public class Board extends DroppingSprite implements Const {
 	private int generateRandomWidth(int w) {
 		int minW = w >> 3;			// w / 8
 		int maxW = (w >> 2) * 3; 	// w*3/4
-		return minW + RAND.nextInt(maxW - minW); 
+		return minW + RAND.nextInt(maxW - minW);
 	}
 	
 	private int generateRandomX(int w) {
@@ -66,6 +67,14 @@ public class Board extends DroppingSprite implements Const {
 					bounds.bottom); 
 		}
 		return alt; 
+	}
+	
+	public RectF getExpandedRect(float u) {
+		return new RectF(
+				this.bounds.left - u, 
+				this.bounds.top - u, 
+				this.bounds.right + u, 
+				this.bounds.bottom + u); 
 	}
 
 	@Override
