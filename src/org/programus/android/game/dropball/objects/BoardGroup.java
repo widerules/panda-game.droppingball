@@ -5,21 +5,29 @@ import java.util.LinkedList;
 
 import org.programus.android.game.R;
 import org.programus.android.game._engine.core.Game;
+import org.programus.android.game._engine.core.Savable;
+import org.programus.android.game._engine.objects.SavableSprite;
 import org.programus.android.game._engine.objects.SpriteLike;
 import org.programus.android.game._engine.utils.Const;
 
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.Log;
 
-public class BoardGroup implements SpriteLike, Const{
+public class BoardGroup implements SpriteLike, Savable, Const{
 	private LinkedList<Board> boards = new LinkedList<Board>(); 
 	private Game game; 
 	
 	private static float minDistance; 
 	private static float maxDistance; 
+	
+	private static final String BOARD_SPEED = "board.speed"; 
+	private static final String BOARD_NUM = "board.number"; 
+	private static final String BOARDS = "board.list_"; 
 	
 	public BoardGroup(Game game) {
 		this.game = game; 
@@ -57,9 +65,9 @@ public class BoardGroup implements SpriteLike, Const{
 	@Override
 	public void stepCalc(long dt) {
 		int line = -(game.getH() >> 1); 
-		float lastBottom = this.boards.getLast().getBounds().bottom; 
+		float lastBottom = this.boards.size() > 0 ? this.boards.getLast().getBounds().bottom : game.getH() >> 2; 
 		if ((game.getH() << 1) - lastBottom >= maxDistance) {
-			float y = this.boards.getLast().getBounds().bottom + minDistance + RAND.nextFloat() * (maxDistance - minDistance); 
+			float y = (this.boards.size() > 0 ? this.boards.getLast().getBounds().bottom : 0) + minDistance + RAND.nextFloat() * (maxDistance - minDistance); 
 			this.addBoards(y); 
 		}
 		for (Iterator<Board> i = this.boards.iterator();i.hasNext();) {
@@ -155,5 +163,44 @@ public class BoardGroup implements SpriteLike, Const{
 			}
 			y += brd.getBounds().height() + minDistance + RAND.nextFloat() * (maxDistance - minDistance); 
 		}
+	}
+
+	@Override
+	public boolean load(SharedPreferences pref) {
+		boolean ret = pref.contains(BOARD_NUM); 
+		if (ret) {
+			Board.setSpeed(pref.getFloat(BOARD_SPEED, 0)); 
+			final int n = pref.getInt(BOARD_NUM, 0); 
+			this.boards.clear(); 
+			for (int i = 0; i < n; i++) {
+				Board b = new Board(this.game, false); 
+				RectF r = b.getBounds(); 
+				String keyPrefix = BOARDS + i; 
+				r.set(
+						pref.getFloat(keyPrefix + SavableSprite.LEFT,	0), 
+						pref.getFloat(keyPrefix + SavableSprite.TOP, 	0),
+						pref.getFloat(keyPrefix + SavableSprite.RIGHT, 	0),
+						pref.getFloat(keyPrefix + SavableSprite.BOTTOM,	0)); 
+				this.boards.add(b); 
+			}
+			Log.d(TAG, "loaded boards:" + boards); 
+		}
+		return ret;
+	}
+
+	@Override
+	public void save(Editor editor) {
+		editor.putFloat(BOARD_SPEED, Board.getSpeed()); 
+		int i = 0; 
+		for (Board b : this.boards) {
+			RectF r = b.getBounds(); 
+			String keyPrefix = BOARDS + (i++); 
+			editor.putFloat(keyPrefix + SavableSprite.LEFT, 	r.left); 
+			editor.putFloat(keyPrefix + SavableSprite.RIGHT, 	r.right); 
+			editor.putFloat(keyPrefix + SavableSprite.TOP, 		r.top); 
+			editor.putFloat(keyPrefix + SavableSprite.BOTTOM, 	r.bottom); 
+		}
+		editor.putInt(BOARD_NUM, i); 
+		Log.d(TAG, "saved boards:" + boards); 
 	}
 }

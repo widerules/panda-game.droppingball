@@ -4,10 +4,13 @@ import java.lang.reflect.Constructor;
 
 import org.programus.android.game.R;
 import org.programus.android.game._engine.core.Game;
+import org.programus.android.game._engine.core.GameContext;
+import org.programus.android.game._engine.core.Savable;
 import org.programus.android.game._engine.utils.Const;
 import org.programus.android.game._engine.utils.GameUtilities;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -22,10 +25,11 @@ import android.widget.Toast;
  * @author Programus
  *
  */
-public class GameSurfaceView extends SurfaceView implements Runnable, Callback, Const {
+public class GameSurfaceView extends SurfaceView implements Runnable, Callback, Savable, Const {
 	private int restTime; 
 	private SurfaceHolder sfh; 
 	private boolean running; 
+	private boolean pausing; 
 	private Game game;
 	
 	public GameSurfaceView(Context context, AttributeSet attrs) {
@@ -45,6 +49,7 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 			Log.d(TAG, "Exception when init game class.", e); 
 			GameUtilities.ExitApplication(context); 
 		}
+		GameContext.getInstance().put(GameContext.GAME_VIEW, this); 
 	}
 
 	@Override
@@ -68,7 +73,9 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 	public void run() {
 		this.running = true;
 		while(this.running) {
-			this.paint(); 
+			if (!this.pausing) {
+				this.paint(); 
+			}
 			if (restTime > 0) {
 				try {
 					Thread.sleep(restTime);
@@ -77,7 +84,7 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 		}
 	}
 
-	private void paint() {
+	private synchronized void paint() {
 		Canvas canvas = this.sfh.lockCanvas(); 
 		if (this.game != null) {
 			this.game.setPaintTime(System.currentTimeMillis()); 
@@ -86,6 +93,31 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 		}
 		
 		sfh.unlockCanvasAndPost(canvas); 
+	}
+	
+	public void setPausing(boolean pausing) {
+		this.pausing = pausing; 
+	}
+	
+	public boolean isPausing() {
+		return this.pausing; 
+	}
+	
+	public synchronized void save(SharedPreferences.Editor editor) {
+		boolean p = this.isPausing(); 
+		this.setPausing(true); 
+		this.game.save(editor); 
+		this.setPausing(p); 
+		Log.d(TAG, "Saved"); 
+	}
+	
+	public synchronized boolean load(SharedPreferences pref) {
+		boolean p = this.isPausing(); 
+		this.setPausing(true); 
+		boolean ret = this.game.load(pref); 
+		Log.d(TAG, "loaded"); 
+		this.setPausing(p); 
+		return ret; 
 	}
 
 	@Override

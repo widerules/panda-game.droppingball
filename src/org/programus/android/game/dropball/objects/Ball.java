@@ -5,6 +5,7 @@ import org.programus.android.game._engine.core.Game;
 import org.programus.android.game._engine.data.AccData;
 import org.programus.android.game._engine.utils.Const;
 
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -21,6 +22,9 @@ public class Ball extends DroppingSprite implements Const {
 	
 	private float r; 
 	private PointF speed; 
+	
+	private static final String SPEED_X = "ball.speed.x"; 
+	private static final String SPEED_Y = "ball.speed.y"; 
 	
 	public Ball(Game game) {
 		this.game = game; 
@@ -102,5 +106,22 @@ public class Ball extends DroppingSprite implements Const {
 	
 	private float getFriction(float speed) {
 		return frictionRate * speed * speed * speed; 
+	}
+	
+	@Override
+	public void save(SharedPreferences.Editor editor) {
+		super.save(editor); 
+		editor.putFloat(SPEED_X, this.speed.x); 
+		editor.putFloat(SPEED_Y, this.speed.y); 
+	}
+	
+	@Override
+	public boolean load(SharedPreferences pref) {
+		boolean ret = super.load(pref); 
+		if (ret) {
+			this.speed.x = pref.getFloat(SPEED_X, 0); 
+			this.speed.y = pref.getFloat(SPEED_Y, 0); 
+		}
+		return ret; 
 	}
 }

@@ -6,11 +6,12 @@ import java.util.Map;
 import org.programus.android.game._engine.utils.Const;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.util.Log;
 import android.view.MotionEvent;
 
-public class Game implements Const {
+public class Game implements Const, Savable {
 	protected Context context; 
 	protected int w;
 	protected int h;
@@ -51,6 +52,13 @@ public class Game implements Const {
 	}
 
 	public void start() {
+	}
+	
+	public void save(SharedPreferences.Editor editor) {
+	}
+	
+	public boolean load(SharedPreferences pref) {
+		return false; 
 	}
 
 	public final void drawFrame(Canvas canvas) {

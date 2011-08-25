@@ -8,12 +8,14 @@ import org.programus.android.game.dropball.scene.PausedScene;
 import org.programus.android.game.dropball.scene.PlayingScene;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.MotionEvent;
 
 public class DroppingBallGame extends Game implements Const {
 	public final int STATUS_PAUSED; 
 	public final int STATUS_PLAYING;
 	
+	private boolean useLoadedData; 
 	private ObjectCollection oc; 
 	
 	public DroppingBallGame(Context context) {
@@ -34,7 +36,11 @@ public class DroppingBallGame extends Game implements Const {
 	@Override
 	public void start() {
 		this.setStatus(STATUS_PAUSED); 
-		this.oc.reset(); 
+		if (!useLoadedData) {
+			this.oc.reset(); 
+		} else {
+			useLoadedData = false; 
+		}
 	}
 	
 	@Override
@@ -47,5 +53,16 @@ public class DroppingBallGame extends Game implements Const {
 			}
 		}
 		return true; 
+	}
+	
+	@Override
+	public void save(SharedPreferences.Editor editor) {
+		this.oc.save(editor); 
+	}
+	
+	@Override
+	public boolean load(SharedPreferences pref) {
+		this.useLoadedData = this.oc.load(pref); 
+		return this.useLoadedData; 
 	}
 }
