@@ -5,12 +5,14 @@ import org.programus.android.game._engine.core.Game;
 import org.programus.android.game._engine.data.AccData;
 import org.programus.android.game._engine.utils.Const;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.os.Vibrator;
 
 public class Ball extends DroppingSprite implements Const {
 	private Paint paint;
@@ -24,11 +26,16 @@ public class Ball extends DroppingSprite implements Const {
 	private PointF speed; 
 	
 	private static final String SPEED_X = "ball.speed.x"; 
-	private static final String SPEED_Y = "ball.speed.y"; 
+	private static final String SPEED_Y = "ball.speed.y";
+	private static final float IMPACT_DSPEED = 5; 
+	
+	private Vibrator vib; 
 	
 	public Ball(Game game) {
 		this.game = game; 
 		this.acc = AccData.getInstance(); 
+		
+		this.vib = (Vibrator) game.getContext().getSystemService(Context.VIBRATOR_SERVICE); 
 		this.speed = new PointF(); 
 		
 		Resources res = this.game.getContext().getResources(); 
@@ -62,9 +69,14 @@ public class Ball extends DroppingSprite implements Const {
 		PointF p2 = this.getCenter(); 
 		
 		if (boardGroup != null) {
+			PointF prevSpeed = new PointF(speed.x, speed.y); 
 			PointF impactPoint = boardGroup.getImpactPoint(r, p1, p2, speed); 
 			if (impactPoint != null) {
 				this.moveTo(impactPoint.x, impactPoint.y); 
+				float maxDeltaSpeed = Math.max(Math.abs(prevSpeed.x - speed.x), Math.abs(prevSpeed.y - speed.y)); 
+				if (maxDeltaSpeed > IMPACT_DSPEED) {
+					vib.vibrate((int)maxDeltaSpeed); 
+				}
 			}
 		}
 		
