@@ -10,5 +10,7 @@ public interface Const {
 	
 	float F_RATE = .000003F; 
 	
+	float ZERO_FLOAT = 0.0000000001F;
+	
 	Random RAND = new Random(); 
 }

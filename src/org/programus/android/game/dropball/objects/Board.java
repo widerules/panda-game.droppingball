@@ -26,8 +26,11 @@ public class Board extends DroppingSprite implements Const {
 		this.fillPaint.setColor(foreColor); 
 		this.fillPaint.setStyle(Style.FILL); 
 		
-		if (Board.speed < 0.0000000001F) {
+		if (Board.speed < ZERO_FLOAT) {
 			Board.speed = res.getDimension(R.dimen.boardInitSpeed); 
+		}
+		
+		if (Board.acceleration < ZERO_FLOAT) {
 			Board.acceleration = res.getDimension(R.dimen.boardAcceleration); 
 			DroppingSprite.initFrictionRate(res); 
 		}

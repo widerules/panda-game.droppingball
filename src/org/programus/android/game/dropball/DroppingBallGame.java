@@ -65,4 +65,12 @@ public class DroppingBallGame extends Game implements Const {
 		this.useLoadedData = this.oc.load(pref); 
 		return this.useLoadedData; 
 	}
+
+	public boolean isUseLoadedData() {
+		return useLoadedData;
+	}
+
+	public void setUseLoadedData(boolean useLoadedData) {
+		this.useLoadedData = useLoadedData;
+	}
 }

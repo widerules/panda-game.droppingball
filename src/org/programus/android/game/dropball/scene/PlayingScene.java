@@ -7,6 +7,8 @@ import org.programus.android.game._engine.utils.Const;
 import org.programus.android.game.dropball.DroppingBallGame;
 import org.programus.android.game.dropball.objects.Ball;
 import org.programus.android.game.dropball.objects.BoardGroup;
+import org.programus.android.game.dropball.objects.ObjectCollection;
+import org.programus.android.game.dropball.objects.ScoreStorage;
 
 import android.graphics.Canvas;
 import android.graphics.RectF;
@@ -29,23 +31,28 @@ public class PlayingScene extends GameScene implements Const {
 	@Override
 	protected void drawFrame(Canvas canvas) {
 		canvas.drawColor(this.bkColor); 
-		dGame.getObjects().getBall().draw(canvas); 
-		dGame.getObjects().getBoardGroup().draw(canvas); 
+		ObjectCollection objects = dGame.getObjects(); 
+		objects.getBall().draw(canvas); 
+		objects.getBoardGroup().draw(canvas); 
+		objects.getScore().draw(canvas); 
 	}
 
 	@Override
 	protected void calcFrameData() {
 		if (dGame.getStatus() == dGame.STATUS_PLAYING) {
-//			Log.d(TAG, "dt=" + dt); 
 			Ball ball = dGame.getObjects().getBall(); 
 			BoardGroup bgroup = dGame.getObjects().getBoardGroup(); 
+			ScoreStorage score = dGame.getObjects().getScore(); 
+			
 			bgroup.stepCalc(dt); 
 			ball.updageBoardGroup(bgroup); 
 			ball.stepCalc(dt); 
+			score.stepCalc(dt); 
 			
 			if (this.gameOver(ball)) {
 				dGame.setStatus(dGame.STATUS_PAUSED); 
 				// reset game.
+				dGame.setUseLoadedData(false); 
 				game.start(); 
 			}
 		}
