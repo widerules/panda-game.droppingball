@@ -2,5 +2,6 @@
 <resources>
     <item name="PAUSED" format="integer" type="integer">0</item>
     <item name="PLAYING" format="integer" type="integer">1</item>
+    <item name="NEW" type="integer" format="integer">2</item>
     
 </resources>

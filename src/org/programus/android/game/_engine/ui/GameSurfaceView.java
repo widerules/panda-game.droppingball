@@ -103,6 +103,10 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 		return this.pausing; 
 	}
 	
+	public void pauseGame() {
+		this.game.pause(); 
+	}
+	
 	public synchronized void save(SharedPreferences.Editor editor) {
 		boolean p = this.isPausing(); 
 		this.setPausing(true); 

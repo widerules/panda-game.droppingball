@@ -12,6 +12,12 @@
     <dimen name="boardAcceleration">0.00001px</dimen>
     <color name="scoreTextColor">#a55f</color>
     <dimen name="scoreTextSize">16px</dimen>
+    <color name="newTextColor">#aaaf</color>
+    <dimen name="newTextSize">60px</dimen>
+    <color name="pausedScoreColor">#caaf</color>
+    <dimen name="pausedScoreSize">30px</dimen>
+    <color name="recordColor">#ef88</color>
+    <dimen name="recordSize">30px</dimen>
 	
     
     

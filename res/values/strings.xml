@@ -4,5 +4,11 @@
     <string name="gameInitErrorMessage">Main game class initializing error, the package might be damaged. Please download again.</string>
     <string name="appExit">APP_EXIT</string>
     <string name="paused">PAUSED</string>
-    <string name="scoreFormat">SCORE: {0,number,000000000000000000}</string>
+    <string name="scoreFormat">{1}: {0,number,000000000000000000}</string>
+    <string name="newText">NEW CHANCE</string>
+    <string name="recordText">New Record!</string>
+    <string name="playingScore">SCORE</string>
+    <string name="currentScore">CURR</string><string name="pausedScore">LAST</string>
+    <string name="hiScore">HIGH</string>
+    
 </resources>

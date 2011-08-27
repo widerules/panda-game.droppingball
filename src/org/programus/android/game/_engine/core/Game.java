@@ -54,6 +54,9 @@ public class Game implements Const, Savable {
 	public void start() {
 	}
 	
+	public void pause() {
+	}
+	
 	public void save(SharedPreferences.Editor editor) {
 	}
 	

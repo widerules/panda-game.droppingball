@@ -50,7 +50,7 @@ public class PlayingScene extends GameScene implements Const {
 			score.stepCalc(dt); 
 			
 			if (this.gameOver(ball)) {
-				dGame.setStatus(dGame.STATUS_PAUSED); 
+				dGame.setStatus(dGame.STATUS_NEW); 
 				// reset game.
 				dGame.setUseLoadedData(false); 
 				game.start(); 

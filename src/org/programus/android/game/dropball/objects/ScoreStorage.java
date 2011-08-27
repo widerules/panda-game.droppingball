@@ -17,10 +17,16 @@ import android.graphics.Rect;
 public class ScoreStorage extends SavableSprite implements Const {
 	public final static String SCORE = "score.value"; 
 	public final static String HI_SCORE = "score.hivalue"; 
+	public final static String LAST_SCORE = "score.lastvalue"; 
 	
 	private long score;
 	private long hiScore;
 	private long prevScore;
+	private String scoreTitle; 
+	private String currScoreTitle; 
+	private String prevScoreTitle; 
+	private String hiScoreTitle; 
+	
 	private Paint paint;
 	private Game game;
 	
@@ -32,8 +38,11 @@ public class ScoreStorage extends SavableSprite implements Const {
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG); 
 		paint.setColor(res.getColor(R.color.scoreTextColor)); 
 		paint.setTextSize(res.getDimension(R.dimen.scoreTextSize)); 
-		
 		format = new MessageFormat(res.getString(R.string.scoreFormat)); 
+		scoreTitle = res.getString(R.string.playingScore); 
+		this.currScoreTitle = res.getString(R.string.currentScore); 
+		this.prevScoreTitle = res.getString(R.string.pausedScore); 
+		this.hiScoreTitle = res.getString(R.string.hiScore); 
 	}
 
 	@Override
@@ -53,7 +62,7 @@ public class ScoreStorage extends SavableSprite implements Const {
 
 	@Override
 	public void draw(Canvas canvas) {
-		String scoreString = format.format(new Long[]{score}); 
+		String scoreString = format.format(new Object[]{score, scoreTitle}); 
 		Rect bounds = new Rect(); 
 		paint.getTextBounds(scoreString, 0, scoreString.length(), bounds); 
 		int x = 0; 
@@ -65,6 +74,7 @@ public class ScoreStorage extends SavableSprite implements Const {
 	public void save(SharedPreferences.Editor editor) {
 		editor.putLong(SCORE, score); 
 		editor.putLong(HI_SCORE, hiScore); 
+		editor.putLong(LAST_SCORE, prevScore); 
 	}
 	
 	@Override
@@ -75,6 +85,7 @@ public class ScoreStorage extends SavableSprite implements Const {
 		} else {
 			this.score = s;
 			this.hiScore = pref.getLong(HI_SCORE, 0); 
+			this.prevScore = pref.getLong(LAST_SCORE, 0); 
 			return true; 
 		}
 	}
@@ -82,8 +93,24 @@ public class ScoreStorage extends SavableSprite implements Const {
 	public long getHiScore() {
 		return hiScore;
 	}
+	
+	public String getHiScoreText() {
+		return this.format.format(new Object[]{this.hiScore, hiScoreTitle}); 
+	}
 
 	public long getPrevScore() {
 		return prevScore;
+	}
+	
+	public String getPrevScoreText() {
+		return this.format.format(new Object[]{this.prevScore, prevScoreTitle}); 
+	}
+	
+	public long getScore() {
+		return score;
+	}
+	
+	public String getCurrScoreText() {
+		return this.format.format(new Object[]{this.score, currScoreTitle}); 
 	}
 }

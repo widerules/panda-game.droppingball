@@ -82,4 +82,13 @@ public class MainActivity extends Activity implements Const, SensorEventListener
 		// update sensor data. 
 		AccData.getInstance().setG(event.values); 
 	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		GameSurfaceView view = (GameSurfaceView) GameContext.getInstance().get(GameContext.GAME_VIEW); 
+		if (!hasFocus) {
+			view.pauseGame(); 
+		}
+	}
 }
