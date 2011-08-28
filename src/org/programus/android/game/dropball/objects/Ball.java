@@ -12,7 +12,10 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Vibrator;
+import android.util.Log;
 
 public class Ball extends DroppingSprite implements Const {
 	private Paint paint;
@@ -28,14 +31,22 @@ public class Ball extends DroppingSprite implements Const {
 	private static final String SPEED_X = "ball.speed.x"; 
 	private static final String SPEED_Y = "ball.speed.y";
 	private static final float IMPACT_DSPEED = 5; 
+	private final float MAX_SPEED; 
 	
 	private Vibrator vib; 
+	private SoundPool soundPool; 
+	private AudioManager am; 
+	private final static float LR_GAP = .3F; 
+	private int impactSoundId; 
 	
 	public Ball(Game game) {
 		this.game = game; 
 		this.acc = AccData.getInstance(); 
 		
 		this.vib = (Vibrator) game.getContext().getSystemService(Context.VIBRATOR_SERVICE); 
+		this.soundPool = new SoundPool(5, AudioManager.STREAM_RING, 0); 
+		this.impactSoundId = this.soundPool.load(game.getContext(), R.raw.impact, 1); 
+		this.am = (AudioManager) game.getContext().getSystemService(Context.AUDIO_SERVICE); 
 		this.speed = new PointF(); 
 		
 		Resources res = this.game.getContext().getResources(); 
@@ -47,6 +58,8 @@ public class Ball extends DroppingSprite implements Const {
 		paint.setColor(foreColor); 
 		paint.setStyle(Paint.Style.FILL); 
 		DroppingSprite.initFrictionRate(res); 
+		MAX_SPEED = (float)Math.pow(10 * PX_RATE / frictionRate, 1./3); 
+		Log.d(TAG, "MAX_SPEED=" + MAX_SPEED); 
 	}
 	
 	@Override
@@ -73,10 +86,7 @@ public class Ball extends DroppingSprite implements Const {
 			PointF impactPoint = boardGroup.getImpactPoint(r, p1, p2, speed); 
 			if (impactPoint != null) {
 				this.moveTo(impactPoint.x, impactPoint.y); 
-				float maxDeltaSpeed = Math.max(Math.abs(prevSpeed.x - speed.x), Math.abs(prevSpeed.y - speed.y)); 
-				if (maxDeltaSpeed > IMPACT_DSPEED) {
-					vib.vibrate((int)maxDeltaSpeed); 
-				}
+				this.impactEffect(prevSpeed, this.bounds.centerX()); 
 			}
 		}
 		
@@ -87,7 +97,25 @@ public class Ball extends DroppingSprite implements Const {
 		if (this.bounds.left > w) {
 			this.move(-w, 0); 
 		}
-		
+	}
+	
+	private void impactEffect(PointF prevSpeed, float x) {
+		float maxDeltaSpeed = Math.max(Math.abs(prevSpeed.x - speed.x), Math.abs(prevSpeed.y - speed.y)); 
+		if (maxDeltaSpeed > IMPACT_DSPEED) {
+			if (this.impactSoundId != 0) {
+				float maxVol = (float) am.getStreamMaxVolume(AudioManager.STREAM_RING) / am.getStreamMaxVolume(AudioManager.STREAM_RING); 
+				Log.d(TAG, "MaxDeltaSpeed:" + maxDeltaSpeed); 
+				float masterVol = maxVol * (maxDeltaSpeed / MAX_SPEED); 
+				if (masterVol > 1) {
+					masterVol = 1; 
+				}
+				int w = game.getW(); 
+				float leftGap = LR_GAP * ((x + w) % w) / w;
+				float rightGap = LR_GAP - leftGap; 
+				this.soundPool.play(this.impactSoundId, masterVol - leftGap, masterVol - rightGap, 1, 0, 1); 
+			}
+			vib.vibrate((int)maxDeltaSpeed); 
+		}
 	}
 	
 	public void updageBoardGroup(BoardGroup bgroup) {
