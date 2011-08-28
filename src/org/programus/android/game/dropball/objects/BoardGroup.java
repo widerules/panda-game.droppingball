@@ -4,11 +4,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.programus.android.game.R;
-import org.programus.android.game._engine.core.Game;
 import org.programus.android.game._engine.core.Savable;
 import org.programus.android.game._engine.objects.SavableSprite;
 import org.programus.android.game._engine.objects.SpriteLike;
 import org.programus.android.game._engine.utils.Const;
+import org.programus.android.game.dropball.DroppingBallGame;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -20,7 +20,7 @@ import android.util.Log;
 
 public class BoardGroup implements SpriteLike, Savable, Const{
 	private LinkedList<Board> boards = new LinkedList<Board>(); 
-	private Game game; 
+	private DroppingBallGame game; 
 	
 	private static float minDistance; 
 	private static float maxDistance; 
@@ -29,7 +29,10 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 	private static final String BOARD_NUM = "board.number"; 
 	private static final String BOARDS = "board.list_"; 
 	
-	public BoardGroup(Game game) {
+	public static final int SIDE_ABOVE = 1;
+	public static final int SIDE_UNDER = 2; 
+	
+	public BoardGroup(DroppingBallGame game) {
 		this.game = game; 
 		this.initParams(); 
 	}
@@ -78,6 +81,15 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 				board.stepCalc(dt); 
 			}
 		}
+	}
+	
+	public int getSideOnBoard(float r, PointF p, PointF speed) {
+		int side = 0; 
+		for (Board board : this.boards) {
+			RectF rect = board.getExpandedRect(r); 
+			//TODO: get which side of board is the ball on. 
+		}
+		return side; 
 	}
 	
 	public PointF getImpactPoint(float r, PointF p1, PointF p2, PointF speed) {

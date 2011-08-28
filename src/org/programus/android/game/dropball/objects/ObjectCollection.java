@@ -1,19 +1,19 @@
 package org.programus.android.game.dropball.objects;
 
-import org.programus.android.game._engine.core.Game;
 import org.programus.android.game._engine.core.Savable;
 import org.programus.android.game._engine.utils.Const;
+import org.programus.android.game.dropball.DroppingBallGame;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 public class ObjectCollection implements Savable, Const {
-	private Game game; 
+	private DroppingBallGame game; 
 	private Ball ball; 
 	private BoardGroup bgroup; 
 	private ScoreStorage score;
 	
-	public ObjectCollection(Game game) {
+	public ObjectCollection(DroppingBallGame game) {
 		this.game = game; 
 		this.initObjects(); 
 	}

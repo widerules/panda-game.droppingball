@@ -1,8 +1,8 @@
 package org.programus.android.game.dropball.objects;
 
 import org.programus.android.game.R;
-import org.programus.android.game._engine.core.Game;
 import org.programus.android.game._engine.utils.Const;
+import org.programus.android.game.dropball.DroppingBallGame;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -15,9 +15,9 @@ public class Board extends DroppingSprite implements Const {
 	private static float speed = 0; 
 	private static float acceleration = 0; 
 	private Paint fillPaint;
-	private Game game; 
+	private DroppingBallGame game; 
 	
-	public Board(Game game, boolean bGenerateRectData) {
+	public Board(DroppingBallGame game, boolean bGenerateRectData) {
 		this.game = game; 
 		
 		Resources res = this.game.getContext().getResources(); 		
@@ -43,7 +43,7 @@ public class Board extends DroppingSprite implements Const {
 		}
 	}
 	
-	public Board(Game game, float top) {
+	public Board(DroppingBallGame game, float top) {
 		this(game, true); 
 		this.move(0, top); 
 	}
