@@ -1,5 +1,9 @@
 package org.programus.android.game.dropball.objects;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.programus.android.game.R;
 import org.programus.android.game._engine.data.AccData;
 import org.programus.android.game._engine.utils.Const;
@@ -26,8 +30,6 @@ public class Ball extends DroppingSprite implements Const {
 	
 	private AccData acc; 
 	
-	private BoardGroup boardGroup; 
-	
 	private float r; 
 	private PointF speed; 
 	
@@ -51,6 +53,14 @@ public class Ball extends DroppingSprite implements Const {
 	private AudioManager am; 
 	private final static float LR_GAP = .3F; 
 	private int impactSoundId; 
+	
+	private List<RectF> shadows = Collections.synchronizedList(new LinkedList<RectF>()); 
+	private int maxShadow = 100; 
+	private int minShadow = 10; 
+	private int maxShadowAlpha = 0x8f; 
+	private int minShadowAlpha = 0x00; 
+	private int createShadowInterval = 20; 
+	private int timeCounter = 0; 
 	
 	public Ball(DroppingBallGame game) {
 		this.game = game; 
@@ -88,11 +98,15 @@ public class Ball extends DroppingSprite implements Const {
 		int w = game.getW(); 
 		this.moveTo(w >> 1, game.getH() >> 3); 
 		this.speed.set(0, 0); 
+		this.shadows.clear(); 
 	}
 	
 	@Override
 	public void stepCalc(long dt) {
+		BoardGroup boardGroup = game.getObjects().getBoardGroup(); 
+		this.timeCounter += dt; 
 		if (this.game.getStatus() == this.game.STATUS_PLAYING) {
+			this.sideOnBoard = 0; 
 			float ax = this.acc.getScreenGx() - this.getFriction(this.speed.x); 
 			float ay = this.acc.getScreenGy() - this.getFriction(this.speed.y); 
 			this.speed.x += ax * dt; 
@@ -118,10 +132,31 @@ public class Ball extends DroppingSprite implements Const {
 			if (this.bounds.left > w) {
 				this.move(-w, 0); 
 			}
+			
+			this.moveShadows(); 
+			if (this.timeCounter > this.createShadowInterval) {
+				this.shadows.add(new RectF(this.bounds)); 
+				this.timeCounter -= this.createShadowInterval;
+			}
 		} else {
 			if (boardGroup != null) {
 				this.sideOnBoard = boardGroup.getSideOnBoard(r, getCenter(), speed); 
 			}
+		}
+		int n = (int)(this.game.getObjects().getScore().getScore() >> 16) + minShadow; 
+		if (n > this.maxShadow) {
+			n = this.maxShadow; 
+		}
+		synchronized(this.shadows) {
+			while (this.shadows.size() > n) {
+				shadows.remove(0); 
+			}
+		}
+	}
+	
+	private void moveShadows() {
+		for (RectF rect : shadows) {
+			rect.offset(0, -Board.getSpeed()); 
 		}
 	}
 	
@@ -144,21 +179,14 @@ public class Ball extends DroppingSprite implements Const {
 		}
 	}
 	
-	public void updageBoardGroup(BoardGroup bgroup) {
-		this.boardGroup = bgroup; 
-	}
-	
 	public PointF getCenter() {
 		return new PointF(this.bounds.centerX(), this.bounds.centerY()); 
 	}
 	
 	@Override
 	public void draw(Canvas canvas) {
-		boolean playingGame = this.game.getStatus() == this.game.STATUS_PLAYING; 
-		canvas.drawOval(bounds, paint); 
-		if (!playingGame) {
-			this.drawDecoration(canvas, bounds); 
-		}
+		this.drawShadows(canvas); 
+		this.drawDecorationAndBall(canvas, bounds); 
 		RectF altBounds = null; 
 		int w = canvas.getWidth(); 
 		if (bounds.left < 0) {
@@ -170,19 +198,54 @@ public class Ball extends DroppingSprite implements Const {
 			altBounds.offset(-w, 0); 
 		}
 		if (altBounds != null) {
-			canvas.drawOval(altBounds, paint); 
-			if (!playingGame) {
-				this.drawDecoration(canvas, altBounds); 
-			}
+			this.drawDecorationAndBall(canvas, altBounds); 
 		}
 	}
 	
-	private void drawDecoration(Canvas canvas, RectF rect) {
-		this.drawForceLines(canvas, rect); 
-//		if (sideOnBoard != 0) {
-//			this.drawForceLine(canvas, rect, new PointF(0, fy)); 
-//			this.drawForceLine(canvas, rect, new PointF(fx, 0)); 
-//		}
+	private void drawShadows(Canvas canvas) {
+		int oldAlpha = paint.getAlpha(); 
+		paint.setStyle(Paint.Style.STROKE); 
+		double alpha = minShadowAlpha; 
+		double step = (maxShadowAlpha - minShadowAlpha) / (double)shadows.size(); 
+		for (RectF rect : this.shadows) {
+			alpha += step; 
+			paint.setAlpha((int)alpha); 
+			canvas.drawOval(rect, paint); 
+			RectF alt = null; 
+			int w = canvas.getWidth(); 
+			if (rect.left < 0) {
+				alt = new RectF(rect); 
+				alt.offset(w, 0); 
+			}
+			if (rect.right > w) {
+				alt = new RectF(rect); 
+				alt.offset(-w, 0); 
+			}
+			if (alt != null) {
+				canvas.drawOval(alt, paint); 
+			}
+		}
+		paint.setAlpha(oldAlpha); 
+	}
+	
+	private void drawDecorationAndBall(Canvas canvas, RectF rect) {
+		boolean playingGame = this.game.getStatus() == this.game.STATUS_PLAYING; 
+		Paint.Style oldStyle = paint.getStyle(); 
+		int oldColor = paint.getColor(); 
+		PathEffect oldPE = paint.getPathEffect(); 
+		
+		this.drawSpeedLine(canvas, rect); 
+		paint.setStyle(Paint.Style.FILL); 
+		paint.setColor(oldColor); 
+		paint.setPathEffect(oldPE); 
+		canvas.drawOval(rect, paint); 
+		if (!playingGame) {
+			this.drawForceLines(canvas, rect); 
+		}
+		
+		paint.setStyle(oldStyle); 
+		paint.setColor(oldColor); 
+		paint.setPathEffect(oldPE); 
 	}
 	
 	private void drawForceLines(Canvas canvas, RectF rect) {
@@ -193,10 +256,6 @@ public class Ball extends DroppingSprite implements Const {
 		float fy = AccData.getInstance().getGy() * M; 
 		double f = Math.sqrt(fx * fx + fy * fy); 
 		double degrees = Math.toDegrees(Math.atan2(fy, fx)); 
-		
-		Paint.Style oldStyle = paint.getStyle(); 
-		int oldColor = paint.getColor(); 
-		PathEffect oldPE = paint.getPathEffect(); 
 		
 		// create g path and g line path. 
 		Path gpath = new Path(); 
@@ -283,10 +342,39 @@ public class Ball extends DroppingSprite implements Const {
 			canvas.drawPath(gplinePath, paint); 
 			canvas.restore(); 
 		}		
+	}
+	
+	private void drawSpeedLine(Canvas canvas, RectF rect) {
+		final float RATE = 10; 
+		final float SPEED_WIDTH = 2; 
+		final float OFFSET = 0; 
+		Path mPath = new Path(); 
+		float lx = (this.sideOnBoard == BoardGroup.SIDE_LEFT || this.sideOnBoard == BoardGroup.SIDE_RIGHT) ? 0 : speed.x * RATE; 
+		float ly = (this.sideOnBoard == BoardGroup.SIDE_ABOVE || this.sideOnBoard == BoardGroup.SIDE_UNDER) ? 0 : (speed.y + Board.getSpeed()) * RATE; 
+		double l = Math.sqrt(lx * lx + ly * ly); 
+		double degrees = Math.toDegrees(Math.atan2(ly, lx)); 
 		
-		paint.setStyle(oldStyle); 
-		paint.setColor(oldColor); 
-		paint.setPathEffect(oldPE); 
+		mPath.moveTo((float)-l, 0); 
+		mPath.lineTo(0, -SPEED_WIDTH); 
+		mPath.lineTo(0, SPEED_WIDTH); 
+		mPath.close(); 
+		
+		Path uPath = new Path(); 
+		Path dPath = new Path(); 
+		
+		uPath.addPath(mPath, rect.centerX() - OFFSET, rect.centerY() - r + SPEED_WIDTH); 
+		dPath.addPath(mPath, rect.centerX() - OFFSET, rect.centerY() + r - SPEED_WIDTH); 
+		mPath.offset(rect.centerX() - (OFFSET + r), rect.centerY()); 
+
+		paint.setStyle(Paint.Style.FILL); 
+		paint.setColor(speedColor); 
+		paint.setPathEffect(null); 
+		canvas.save(); 
+		canvas.rotate((float)degrees, rect.centerX(), rect.centerY()); 
+		canvas.drawPath(mPath, paint); 
+		canvas.drawPath(uPath, paint); 
+		canvas.drawPath(dPath, paint); 
+		canvas.restore(); 
 	}
 	
 	private float getFriction(float speed) {

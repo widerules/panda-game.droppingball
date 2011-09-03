@@ -45,7 +45,6 @@ public class PlayingScene extends GameScene implements Const {
 			ScoreStorage score = dGame.getObjects().getScore(); 
 			
 			bgroup.stepCalc(dt); 
-			ball.updageBoardGroup(bgroup); 
 			ball.stepCalc(dt); 
 			score.stepCalc(dt); 
 			

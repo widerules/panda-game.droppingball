@@ -123,7 +123,7 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 		float minY = Math.min(p1.y, p2.y); 
 		float maxY = Math.max(p1.y, p2.y); 
 		
-		final float DELTA = 0.0F; 
+		final float DELTA = 0.1F; 
 		
 		for (Board board : this.boards) {
 			RectF rect = board.getExpandedRect(r); 
@@ -131,7 +131,7 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 			
 			// Check top line
 			p.y = rect.top; 
-			if (speed.y > -Board.getSpeed() && rect.bottom > minY && p.y < maxY) {
+			if (speed.y >= -Board.getSpeed() && rect.bottom >= minY && p.y <= maxY) {
 				p.x = (p.y - b) / a; 
 				if (((p.x > minX && p.x < maxX) || rect.contains(p1.x, p1.y)) && p.x > rect.left && p.x <= rect.right) {
 					speed.y = -Board.getSpeed(); 
@@ -144,7 +144,7 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 			
 			// Check bottom line
 			p.y = rect.bottom; 
-			if (speed.y < -Board.getSpeed() && p.y > minY && rect.top < maxY) {
+			if (speed.y <= -Board.getSpeed() && p.y >= minY && rect.top <= maxY) {
 				p.x = (p.y - b) / a; 
 				if (p.x > minX && p.x < maxX && p.x >= rect.left && p.x < rect.right) {
 					speed.y = -Board.getSpeed(); 
@@ -157,10 +157,10 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 			
 			// Check left line
 			p.x = rect.left; 
-			if (speed.x > 0 && rect.right > minX && p.x < maxX) {
+			if (speed.x >= 0 && rect.right >= minX && p.x <= maxX) {
 				p.y = a * p.x + b; 
 				if (p.y > minY && p.y < maxY && p.y >= rect.top && p.y < rect.bottom) {
-					speed.x = 0; 
+					speed.x = -speed.x / 2; 
 					Log.d(TAG, "left:" + p.x + "," + p.y + "\t/Rect:" + rect + "\tp1:" + p1.x + "," + p1.y + "/p2:" + p2.x + "," + p2.y + "/speed:" + speed.x + "," + speed.y + "/a=" + a + "/b=" + b); 
 					p.y = p2.y; 
 					p.x -= DELTA; 
@@ -170,10 +170,10 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 			
 			// Check right line
 			p.x = rect.right; 
-			if (speed.x < 0 && p.x > minX && rect.left < maxX) {
+			if (speed.x <= 0 && p.x >= minX && rect.left <= maxX) {
 				p.y = a * p.x + b; 
 				if (p.y > minY && p.y < maxY && p.y > rect.top && p.y <= rect.bottom) {
-					speed.x = 0; 
+					speed.x = -speed.x / 2; 
 					Log.d(TAG, "right:" + p.x + "," + p.y + "\t/Rect:" + rect + "\tp1:" + p1.x + "," + p1.y + "/p2:" + p2.x + "," + p2.y + "/speed:" + speed.x + "," + speed.y + "/a=" + a + "/b=" + b); 
 					p.y = p2.y; 
 					p.x += DELTA; 

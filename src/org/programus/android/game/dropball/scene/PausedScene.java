@@ -61,7 +61,6 @@ public class PausedScene extends GameScene implements Const {
 	protected void calcFrameData() {
 		if (dGame.getStatus() == dGame.STATUS_PAUSED) {
 			Ball ball = dGame.getObjects().getBall(); 
-			ball.updageBoardGroup(dGame.getObjects().getBoardGroup()); 
 			ball.stepCalc(dt); 
 		}
 	}
