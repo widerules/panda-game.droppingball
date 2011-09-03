@@ -13,6 +13,7 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 
 public class ScoreStorage extends SavableSprite implements Const {
 	public final static String SCORE = "score.value"; 
@@ -56,7 +57,9 @@ public class ScoreStorage extends SavableSprite implements Const {
 
 	@Override
 	public void stepCalc(long dt) {
-		long ds = (long)(Math.abs((AccData.getInstance().getScreenGy()) + 1) * dt); 
+		float g = Math.abs((AccData.getInstance().getGy())); 
+		Log.d(TAG, "G=" + g); 
+		long ds = (long)(g * g * dt); 
 		this.score += ds; 
 	}
 
