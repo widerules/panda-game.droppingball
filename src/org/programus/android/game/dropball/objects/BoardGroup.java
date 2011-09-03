@@ -31,6 +31,8 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 	
 	public static final int SIDE_ABOVE = 1;
 	public static final int SIDE_UNDER = 2; 
+	public static final int SIDE_LEFT = 3;
+	public static final int SIDE_RIGHT = 4; 
 	
 	public BoardGroup(DroppingBallGame game) {
 		this.game = game; 
@@ -85,9 +87,29 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 	
 	public int getSideOnBoard(float r, PointF p, PointF speed) {
 		int side = 0; 
+		final float EQU_GAP = 1;
 		for (Board board : this.boards) {
 			RectF rect = board.getExpandedRect(r); 
-			//TODO: get which side of board is the ball on. 
+			if (rect.left < p.x && rect.right > p.x) {
+				if (Math.abs(rect.top - p.y) < EQU_GAP && (speed.y >= -Board.getSpeed())) {
+					side = SIDE_ABOVE; 
+					break; 
+				}
+				if (Math.abs(rect.bottom - p.y) < EQU_GAP && (speed.y <= -Board.getSpeed())) {
+					side = SIDE_UNDER;
+					break;
+				}
+			}
+			if (rect.top < p.y && rect.bottom > p.y && speed.x >= 0) {
+				if (Math.abs(rect.left - p.x) < EQU_GAP) {
+					side = SIDE_LEFT;
+					break;
+				}
+				if (Math.abs(rect.right - p.x) < EQU_GAP && speed.x <= 0) {
+					side = SIDE_RIGHT;
+					break;
+				}
+			}
 		}
 		return side; 
 	}

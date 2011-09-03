@@ -5,6 +5,7 @@ import org.programus.android.game._engine.core.Game;
 import org.programus.android.game._engine.core.GameScene;
 import org.programus.android.game._engine.utils.Const;
 import org.programus.android.game.dropball.DroppingBallGame;
+import org.programus.android.game.dropball.objects.Ball;
 import org.programus.android.game.dropball.objects.ObjectCollection;
 
 import android.content.res.Resources;
@@ -58,14 +59,19 @@ public class PausedScene extends GameScene implements Const {
 	
 	@Override
 	protected void calcFrameData() {
+		if (dGame.getStatus() == dGame.STATUS_PAUSED) {
+			Ball ball = dGame.getObjects().getBall(); 
+			ball.updageBoardGroup(dGame.getObjects().getBoardGroup()); 
+			ball.stepCalc(dt); 
+		}
 	}
 	
 	protected void drawFrame(Canvas canvas) {
 		int status = dGame.getStatus(); 
 		canvas.drawColor(this.bkColor); 
 		ObjectCollection objects = dGame.getObjects(); 
-		objects.getBall().draw(canvas); 
 		objects.getBoardGroup().draw(canvas); 
+		objects.getBall().draw(canvas); 
 		boolean isPaused = (status == dGame.STATUS_PAUSED); 
 		this.drawText(canvas, isPaused); 
 	}

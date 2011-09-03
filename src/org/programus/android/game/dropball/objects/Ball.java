@@ -9,8 +9,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathEffect;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.media.AudioManager;
@@ -30,6 +32,14 @@ public class Ball extends DroppingSprite implements Const {
 	private PointF speed; 
 	
 	private int sideOnBoard; 
+	
+	private int gforceColor; 
+	private int nforceColor;
+	private int cforceColor;
+	private int lineColor; 
+	private int speedColor; 
+	
+	private PathEffect linePE; 
 	
 	private static final String SPEED_X = "ball.speed.x"; 
 	private static final String SPEED_Y = "ball.speed.y";
@@ -64,8 +74,15 @@ public class Ball extends DroppingSprite implements Const {
 		DroppingSprite.initFrictionRate(res); 
 		MAX_SPEED = (float)Math.pow(10 * PX_RATE / frictionRate, 1./3); 
 		Log.d(TAG, "MAX_SPEED=" + MAX_SPEED); 
+		
+		this.gforceColor = res.getColor(R.color.gforce); 
+		this.nforceColor = res.getColor(R.color.nforce); 
+		this.cforceColor = res.getColor(R.color.cforce); 
+		this.lineColor = res.getColor(R.color.lines); 
+		this.speedColor = res.getColor(R.color.speed); 
+		this.linePE = new DashPathEffect(new float[]{3, 4}, 0); 
 	}
-	
+
 	@Override
 	public void reset() {
 		int w = game.getW(); 
@@ -161,37 +178,115 @@ public class Ball extends DroppingSprite implements Const {
 	}
 	
 	private void drawDecoration(Canvas canvas, RectF rect) {
-		final float M = 10; 
-		float fx = AccData.getInstance().getGx() * M; 
-		float fy = AccData.getInstance().getGy() * M; 
-		
-		this.drawForceLine(canvas, rect, new PointF(fx, -fy)); 
-		if (sideOnBoard != 0) {
-			this.drawForceLine(canvas, rect, new PointF(0, fy)); 
-			this.drawForceLine(canvas, rect, new PointF(fx, 0)); 
-		}
+		this.drawForceLines(canvas, rect); 
+//		if (sideOnBoard != 0) {
+//			this.drawForceLine(canvas, rect, new PointF(0, fy)); 
+//			this.drawForceLine(canvas, rect, new PointF(fx, 0)); 
+//		}
 	}
 	
-	private void drawForceLine(Canvas canvas, RectF rect, PointF force) {
-		double f = Math.sqrt(force.x * force.x + force.y * force.y); 
-		Log.d(TAG, "f=" + f); 
-		double degrees = Math.toDegrees(Math.atan2(force.y, force.x)); 
-		Path path = new Path(); 
-		path.moveTo((float)f, 0); 
-		path.lineTo(0, 0); 
-		float arrowLength = Math.min((float)(f - r)/2, 7); 
-		path.lineTo(arrowLength, 1.5F); 
-		path.lineTo(arrowLength, -1.5F); 
-		path.lineTo(0, 0); 
-		path.offset((float)-f, 0); 
-		path.offset(rect.centerX(), rect.centerY()); 
+	private void drawForceLines(Canvas canvas, RectF rect) {
+		final float M = 20; 
+		final float STD_ARROW_LEN = 7; 
+		final float STD_ARROW_WIDTH = 3; 
+		float fx = -AccData.getInstance().getGx() * M; 
+		float fy = AccData.getInstance().getGy() * M; 
+		double f = Math.sqrt(fx * fx + fy * fy); 
+		double degrees = Math.toDegrees(Math.atan2(fy, fx)); 
+		
+		Paint.Style oldStyle = paint.getStyle(); 
+		int oldColor = paint.getColor(); 
+		PathEffect oldPE = paint.getPathEffect(); 
+		
+		// create g path and g line path. 
+		Path gpath = new Path(); 
+		Path gplinePath = new Path(); 
+		gpath.moveTo(0, 0); 
+		gpath.lineTo((float)f, 0); 
+		gplinePath.addPath(gpath); 
+		float arrowLength = Math.min((float)f/2, STD_ARROW_LEN); 
+		gpath.rLineTo(-arrowLength, STD_ARROW_WIDTH / 2); 
+		gpath.rLineTo(0, -STD_ARROW_WIDTH); 
+		gpath.lineTo((float)f, 0); 
+		gpath.offset(rect.centerX(), rect.centerY()); 
+		
+		// draw g. 
 		canvas.save(); 
 		canvas.rotate((float)degrees, rect.centerX(), rect.centerY()); 
-		Paint.Style oldStyle = paint.getStyle(); 
+		paint.setPathEffect(null); 
 		paint.setStyle(Paint.Style.STROKE); 
-		canvas.drawPath(path, paint); 
+		paint.setColor(this.gforceColor); 
+		canvas.drawPath(gpath, paint); 
 		canvas.restore(); 
+		
+		if (
+				(fy > 0 && this.sideOnBoard == BoardGroup.SIDE_ABOVE) ||
+				(fy < 0 && this.sideOnBoard == BoardGroup.SIDE_UNDER) ||
+				(fx > 0 && this.sideOnBoard == BoardGroup.SIDE_LEFT) ||
+				(fx < 0 && this.sideOnBoard == BoardGroup.SIDE_RIGHT)) {
+			// create n path, c path and n line path.
+			Path npath = new Path(); 
+			Path nlinePath = new Path(); 
+			Path cpath = new Path(); 
+			npath.moveTo(0, 0); 
+			cpath.moveTo(0, 0); 
+			Path xpath = null; 
+			Path ypath = null; 
+			float xx = fx; 
+			float yy = fy; 
+			float glx = rect.centerX();
+			float gly = rect.centerY();
+			if (this.sideOnBoard == BoardGroup.SIDE_ABOVE || this.sideOnBoard == BoardGroup.SIDE_UNDER) {
+				xpath = cpath; 
+				ypath = npath; 
+				yy = -yy; 
+				gly -= fy; 
+			} else {
+				xpath = npath; 
+				ypath = cpath; 
+				xx = -xx; 
+				glx -= fx; 
+			}
+			xpath.lineTo(xx, 0); 
+			ypath.lineTo(0, yy); 
+			nlinePath.addPath(npath, fx, fy); 
+			arrowLength = Math.min(Math.abs(yy)/2, STD_ARROW_LEN); 
+			ypath.rLineTo(STD_ARROW_WIDTH / 2, yy < 0 ? arrowLength : -arrowLength); 
+			ypath.rLineTo(-STD_ARROW_WIDTH, 0); 
+			ypath.lineTo(0, yy); 
+			arrowLength = Math.min(Math.abs(xx)/2, STD_ARROW_LEN); 
+			xpath.rLineTo(xx < 0 ? arrowLength : -arrowLength, STD_ARROW_WIDTH / 2); 
+			xpath.rLineTo(0, -STD_ARROW_WIDTH); 
+			xpath.lineTo(xx, 0); 
+			
+			// draw n force & c force & n line
+			canvas.save(); 
+			canvas.translate(rect.centerX(), rect.centerY()); 
+			paint.setPathEffect(null); 
+			paint.setStyle(Paint.Style.STROKE); 
+			paint.setColor(nforceColor); 
+			canvas.drawPath(npath, paint); 
+			paint.setColor(cforceColor); 
+			canvas.drawPath(cpath, paint); 
+			paint.setPathEffect(linePE); 
+			paint.setColor(lineColor); 
+			canvas.drawPath(nlinePath, paint); 
+			canvas.restore(); 
+			
+			// draw g line
+			gplinePath.offset(glx, gly); 
+			canvas.save(); 
+			canvas.rotate((float)degrees, glx, gly); 
+			paint.setPathEffect(linePE); 
+			paint.setStyle(Paint.Style.STROKE); 
+			paint.setColor(lineColor); 
+			canvas.drawPath(gplinePath, paint); 
+			canvas.restore(); 
+		}		
+		
 		paint.setStyle(oldStyle); 
+		paint.setColor(oldColor); 
+		paint.setPathEffect(oldPE); 
 	}
 	
 	private float getFriction(float speed) {
