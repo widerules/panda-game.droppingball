@@ -16,6 +16,12 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 
+/**
+ * The main activity for the android application. 
+ * The main view is an instance of {@linkplain GameSurfaceView}. 
+ * @author Programus
+ * 
+ */
 public class MainActivity extends Activity implements Const, SensorEventListener {
 	
 	private SensorManager sm; 
@@ -37,6 +43,16 @@ public class MainActivity extends Activity implements Const, SensorEventListener
     	accSensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER); 
     }
     
+    /**
+     * Invoked when resume the activity. 
+     * In this method, 
+     * <ol>
+     * 	<li>data is loaded if exists, </li>
+     * 	<li>accelerometer sensor is registered and listened, </li>
+     * 	<li>pause the game. </li>
+     * </ol>
+     * @see {@linkplain Activity#onResume()}
+     */
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -51,6 +67,15 @@ public class MainActivity extends Activity implements Const, SensorEventListener
 		view.setPausing(false); 
 	}
 
+	/**
+	 * Invoked when pause the activity. 
+	 * In this method, 
+	 * <ol>
+	 * 	<li>pause the game, </li>
+	 * 	<li>save game data.</li>
+	 * </ol>
+	 * @see {@linkplain Activity#onPause()}
+	 */
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -65,6 +90,12 @@ public class MainActivity extends Activity implements Const, SensorEventListener
 		editor.commit(); 
 	}
 
+	/**
+	 * This method is to finish this activity when package is damaged. 
+	 * @param intent
+	 * @see {@linkplain Activity#onNewIntent(Intent)}
+	 * @see {@linkplain GameSurfaceView#GameSurfaceView(Context, android.util.AttributeSet)}
+	 */
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
@@ -73,16 +104,32 @@ public class MainActivity extends Activity implements Const, SensorEventListener
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see android.hardware.SensorEventListener#onAccuracyChanged(android.hardware.Sensor, int)
+	 */
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 	}
 
+	/**
+	 * Invoked when the sensor value changed. 
+	 * Set acceleration in this method. 
+	 * @param event the event.
+	 * @see {@linkplain SensorEventListener#onSensorChanged(SensorEvent)}
+	 * @see {@linkplain AccData}
+	 */
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		// update sensor data. 
 		AccData.getInstance().setG(event.values); 
 	}
 
+	/**
+	 * Invoked after the activity got/lost the focus. 
+	 * Pause game when the focus lost. 
+	 * @param hasFocus true if got focus. 
+	 * @see {@linkplain GameSurfaceView#pauseGame()}
+	 */
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);

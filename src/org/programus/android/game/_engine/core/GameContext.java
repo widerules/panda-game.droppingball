@@ -3,8 +3,14 @@ package org.programus.android.game._engine.core;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A singleton instance class to store objects in current game context. 
+ * <br />
+ * Now only main view of the game is stored in the context. 
+ * @author Programus
+ *
+ */
 public class GameContext {
-	public final static String SHARED_PREF = "SharedPreferences"; 
 	public final static String GAME_VIEW = "GameView"; 
 	
 	private static GameContext inst = new GameContext(); 

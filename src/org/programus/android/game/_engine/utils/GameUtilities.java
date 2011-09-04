@@ -6,7 +6,17 @@ import org.programus.android.game._engine.MainActivity;
 import android.content.Context;
 import android.content.Intent;
 
+/**
+ * A class to offer utilities for the game. 
+ * @author Programus
+ *
+ */
 public class GameUtilities {
+	
+	/**
+	 * Exit the application. 
+	 * @param context 
+	 */
 	public static void ExitApplication(Context context) {
 		Intent exitIntent = new Intent(context, MainActivity.class); 
 		exitIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

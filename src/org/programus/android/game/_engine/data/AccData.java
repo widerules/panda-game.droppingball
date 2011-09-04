@@ -3,7 +3,7 @@ package org.programus.android.game._engine.data;
 import org.programus.android.game._engine.utils.Const;
 
 /**
- * A class to store the accelerometer data. 
+ * A singleton instance class to store the accelerometer data. 
  * @author Programus
  *
  */

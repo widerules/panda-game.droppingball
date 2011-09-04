@@ -21,15 +21,21 @@ import android.view.SurfaceHolder.Callback;
 import android.widget.Toast;
 
 /**
- * A surface view to give the game a canvas. 
+ * A surface view to give the game a canvas. This is the main view of this application. 
  * @author Programus
  *
  */
 public class GameSurfaceView extends SurfaceView implements Runnable, Callback, Savable, Const {
+	/**
+	 * Sleep time in thread while loop. 
+	 */
 	private int restTime; 
 	private SurfaceHolder sfh; 
+	/** Thread running flag. Use to stop the thread. */
 	private boolean running; 
+	/** Thread paint pausing flag. Not paint if in pausing */
 	private boolean pausing; 
+	/** The game */
 	private Game game;
 	
 	public GameSurfaceView(Context context, AttributeSet attrs) {
@@ -39,16 +45,21 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 		this.setKeepScreenOn(true); 
 		this.sfh = this.getHolder();
 		this.sfh.addCallback(this); 
+		// get game class from resource. 
 		String gameClassName = context.getResources().getString(R.string.gameClass); 
 		try {
+			// create game instance. 
 			Class<?> gameClass = this.getClass().getClassLoader().loadClass(gameClassName);
 			Constructor<?> constructor = gameClass.getConstructor(Context.class); 
 			this.game = (Game) constructor.newInstance(context); 
 		} catch (Exception e) {
+			// if failed. 
 			Toast.makeText(context, R.string.gameInitErrorMessage, Toast.LENGTH_LONG).show(); 
 			Log.d(TAG, "Exception when init game class.", e); 
+			// exit the whole application. 
 			GameUtilities.ExitApplication(context); 
 		}
+		// put game instance into the Game Context (not context of android application). 
 		GameContext.getInstance().put(GameContext.GAME_VIEW, this); 
 	}
 
@@ -127,7 +138,6 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		Log.d(TAG, "TouchedEvent:" + event); 
-		
 		return game.onTouchEvent(event);
 	}
 }
