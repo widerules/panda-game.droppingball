@@ -84,7 +84,7 @@ public class Ball extends DroppingSprite implements Const {
 	/** You cannot get shadows more than this */
 	private int maxShadowNum = 100; 
 	/** If you got a shadow effect, you must have shadows more than this */
-	private int minShadowNum = 90; 
+	private int minShadowNum = 8; 
 	private int maxShadowAlpha = 0x8f; 
 	private int minShadowAlpha = 0x00; 
 	/** Leave a shadow every <i>createShadowInterval</i> frames */
@@ -164,7 +164,7 @@ public class Ball extends DroppingSprite implements Const {
 			if (boardGroup != null) {
 				// record the speed before detecting impact. 
 				// For detect whether an impact happened. (Remember the IMPACT_DSPEED?)
-				PointF prevSpeed = new PointF(speed.x, speed.y); 
+				final PointF prevSpeed = new PointF(speed.x, speed.y); 
 				// Detect the impact point. It will be null if there is no impact happened. 
 				PointF impactPoint = boardGroup.getImpactPoint(r, p1, p2, speed); 
 				if (impactPoint != null) {
@@ -173,7 +173,14 @@ public class Ball extends DroppingSprite implements Const {
 					// Here is a known issue: the ball will vibrate up and down a little when moving on a board.
 					this.moveTo(impactPoint.x, impactPoint.y); 
 					// detect impact strength and play an impact effect if necessary. 
-					this.impactEffect(prevSpeed, this.bounds.centerX()); 
+					// use another thread to play the impact effect to improve performance. 
+					// if not do so, there will be a tiny pause before impact some time. 
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							Ball.this.impactEffect(prevSpeed, bounds.centerX()); 
+						}
+					}, "ImpactEffect").start(); 
 				}
 			}
 			
