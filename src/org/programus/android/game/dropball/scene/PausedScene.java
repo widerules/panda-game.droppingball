@@ -13,6 +13,11 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+/**
+ * Paused scene. Also be used as new game scene. 
+ * @author Programus
+ *
+ */
 public class PausedScene extends GameScene implements Const {
 	private DroppingBallGame dGame; 
 	private int bkColor;
@@ -60,6 +65,7 @@ public class PausedScene extends GameScene implements Const {
 	@Override
 	protected void calcFrameData() {
 		if (dGame.getStatus() == dGame.STATUS_PAUSED) {
+			// calculate ball for detect whether it is on any board. 
 			Ball ball = dGame.getObjects().getBall(); 
 			ball.stepCalc(dt); 
 		}

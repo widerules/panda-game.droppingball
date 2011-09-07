@@ -24,15 +24,31 @@ import android.media.SoundPool;
 import android.os.Vibrator;
 import android.util.Log;
 
+/**
+ * The BALL! which is the most important thing in this game and is the hero of this game. 
+ * @author Programus
+ */
 public class Ball extends DroppingSprite implements Const {
+	/** {@linkplain Paint} object for drawing the ball.  */
 	private Paint paint;
+	/** the game */
 	private DroppingBallGame game; 
 	
+	/** object to get accelerometer data from */
 	private AccData acc; 
 	
+	/** the radius of the ball */
 	private float r; 
+	/** speed in unit: px/second */
 	private PointF speed; 
 	
+	/** 
+	 * Which side of any board the ball is moving on. 0 means the ball is alone. 
+	 * @see {@linkplain BoardGroup#SIDE_ABOVE}
+	 * @see {@linkplain BoardGroup#SIDE_UNDER}
+	 * @see {@linkplain BoardGroup#SIDE_LEFT}
+	 * @see {@linkplain BoardGroup#SIDE_RIGHT}
+	 */
 	private int sideOnBoard; 
 	
 	private int gforceColor; 
@@ -43,25 +59,43 @@ public class Ball extends DroppingSprite implements Const {
 	
 	private PathEffect linePE; 
 	
+	/** key for save */
 	private static final String SPEED_X = "ball.speed.x"; 
+	/** key for save */
 	private static final String SPEED_Y = "ball.speed.y";
+	/** The min change of speed when impact. If the speed didn't change so much, the impact effect will not be enabled. */
 	private static final float IMPACT_DSPEED = 5; 
+	/** The possible max speed of the ball. It is calculated from the friction rate and gravity. */
 	private final float MAX_SPEED; 
 	
+	/** vibrator for impact effect. */
 	private Vibrator vib; 
+	/** sound pool for impact effect. */
 	private SoundPool soundPool; 
+	/** for impact sound effect. */
 	private AudioManager am; 
+	/** The sound vol gap between the most left and most right. To make a stereo sound effect. */
 	private final static float LR_GAP = .3F; 
+	/** for impact sfx. */
 	private int impactSoundId; 
 	
+	/** A list of rects to draw the tail shadows. */
 	private List<RectF> shadows = Collections.synchronizedList(new LinkedList<RectF>()); 
-	private int maxShadow = 100; 
-	private int minShadow = 10; 
+	/** You cannot get shadows more than this */
+	private int maxShadowNum = 100; 
+	/** If you got a shadow effect, you must have shadows more than this */
+	private int minShadowNum = 90; 
 	private int maxShadowAlpha = 0x8f; 
 	private int minShadowAlpha = 0x00; 
-	private int createShadowInterval = 20; 
+	/** Leave a shadow every <i>createShadowInterval</i> frames */
+	private int createShadowInterval = 2; 
+	/** Count time to know whether it reaches the createShadowInterval */
 	private int timeCounter = 0; 
 	
+	/**
+	 * Just a boring constructor that initialize everything it can initialize. 
+	 * @param game the game the ball plays in. 
+	 */
 	public Ball(DroppingBallGame game) {
 		this.game = game; 
 		this.acc = AccData.getInstance(); 
@@ -96,70 +130,113 @@ public class Ball extends DroppingSprite implements Const {
 	@Override
 	public void reset() {
 		int w = game.getW(); 
+		// reset the position. 
 		this.moveTo(w >> 1, game.getH() >> 3); 
 		this.speed.set(0, 0); 
 		this.shadows.clear(); 
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.programus.android.game._engine.objects.SpriteLike#stepCalc(long)
+	 */
 	@Override
 	public void stepCalc(long dt) {
 		BoardGroup boardGroup = game.getObjects().getBoardGroup(); 
-		this.timeCounter += dt; 
+		this.timeCounter += 1; 
 		if (this.game.getStatus() == this.game.STATUS_PLAYING) {
-			this.sideOnBoard = 0; 
+			Log.d(TAG, "dt=" + dt); 
+			// if playing the game. 
+			this.sideOnBoard = 0; // don't worry about whether the ball is on the board here. 
+			// calculate the acceleration for each direction. 
 			float ax = this.acc.getScreenGx() - this.getFriction(this.speed.x); 
 			float ay = this.acc.getScreenGy() - this.getFriction(this.speed.y); 
+			// v = a * dt
 			this.speed.x += ax * dt; 
 			this.speed.y += ay * dt; 
 			
+			// record the point before move the ball. 
 			PointF p1 = this.getCenter(); 
+			// move it in spite there might be a obstacle. 
 			this.move(speed.x, speed.y); 
+			// record the point after moving. 
 			PointF p2 = this.getCenter(); 
 			
 			if (boardGroup != null) {
+				// record the speed before detecting impact. 
+				// For detect whether an impact happened. (Remember the IMPACT_DSPEED?)
 				PointF prevSpeed = new PointF(speed.x, speed.y); 
+				// Detect the impact point. It will be null if there is no impact happened. 
 				PointF impactPoint = boardGroup.getImpactPoint(r, p1, p2, speed); 
 				if (impactPoint != null) {
+					// An impact happened. 
+					// The ball cannot move through any board, so has back to the impact point. 
+					// Here is a known issue: the ball will vibrate up and down a little when moving on a board.
 					this.moveTo(impactPoint.x, impactPoint.y); 
+					// detect impact strength and play an impact effect if necessary. 
 					this.impactEffect(prevSpeed, this.bounds.centerX()); 
 				}
 			}
 			
+			// detect left and right edge. 
 			int w = this.game.getW(); 
 			if (this.bounds.right < 0) {
+				// the ball will be moved to the most left if it move out of the screen from right. 
 				this.move(w, 0); 
 			}
 			if (this.bounds.left > w) {
+				// the same for left edge. see previous comment for details. 
 				this.move(-w, 0); 
 			}
 			
+			// move all shadows. shadows should be moved in the speed of boards. 
+			// this makes the shadows look still related to the boards. 
 			this.moveShadows(); 
-			if (this.timeCounter > this.createShadowInterval) {
+			// detect whether it is the time to leave a new shadow. 
+			if (this.timeCounter >= this.createShadowInterval) {
 				this.shadows.add(new RectF(this.bounds)); 
-				this.timeCounter -= this.createShadowInterval;
+				this.timeCounter = 0;
 			}
 		} else {
+			// when game is pausing or a new game. 
 			if (boardGroup != null) {
+				// just let me know whether the ball is on a board and what side it is on if so. 
+				// this is to draw the n force
 				this.sideOnBoard = boardGroup.getSideOnBoard(r, getCenter(), speed); 
 			}
 		}
-		int n = (int)(this.game.getObjects().getScore().getScore() >> 16) + minShadow; 
-		if (n > this.maxShadow) {
-			n = this.maxShadow; 
+		// calculate the number of the shadow. the more score you got, the more shadow you have. 
+		int n = (int)(this.game.getObjects().getScore().getScore() >> 16) + minShadowNum; 
+		// but no more than the max. 
+		if (n > this.maxShadowNum) {
+			n = this.maxShadowNum; 
 		}
+		
+		// remove old shadows. 
 		synchronized(this.shadows) {
 			while (this.shadows.size() > n) {
 				shadows.remove(0); 
 			}
 		}
+		
+		// About the shadow removal, there is another solution that
+		// give every shadow a lifetime, if it is the end of the life time, 
+		// remove the shadow... 
+		// This solution will also remove shadows in paused scene.
+		// maybe more interesting and cooler...
 	}
 	
 	private void moveShadows() {
 		for (RectF rect : shadows) {
+			// shadows move in the same speed as boards. 
 			rect.offset(0, -Board.getSpeed()); 
 		}
 	}
 	
+	/**
+	 * make impact effect both in sound and vibrate, or more in the future...
+	 * @param prevSpeed the previous speed
+	 * @param x the x of the current ball location. for stereo calculation. 
+	 */
 	private void impactEffect(PointF prevSpeed, float x) {
 		float maxDeltaSpeed = Math.max(Math.abs(prevSpeed.x - speed.x), Math.abs(prevSpeed.y - speed.y)); 
 		if (maxDeltaSpeed > IMPACT_DSPEED) {
@@ -179,6 +256,10 @@ public class Ball extends DroppingSprite implements Const {
 		}
 	}
 	
+	/**
+	 * Return the center point of the ball. 
+	 * @return the center point of the ball. 
+	 */
 	public PointF getCenter() {
 		return new PointF(this.bounds.centerX(), this.bounds.centerY()); 
 	}
@@ -186,7 +267,10 @@ public class Ball extends DroppingSprite implements Const {
 	@Override
 	public void draw(Canvas canvas) {
 		this.drawShadows(canvas); 
+		// decoration includes force lines, speed lines
 		this.drawDecorationAndBall(canvas, bounds); 
+		// if the ball is out of screen on x axis,
+		// an alt ball need to be drawn
 		RectF altBounds = null; 
 		int w = canvas.getWidth(); 
 		if (bounds.left < 0) {
@@ -211,6 +295,7 @@ public class Ball extends DroppingSprite implements Const {
 			alpha += step; 
 			paint.setAlpha((int)alpha); 
 			canvas.drawOval(rect, paint); 
+			// same as alt bounds of ball. 
 			RectF alt = null; 
 			int w = canvas.getWidth(); 
 			if (rect.left < 0) {

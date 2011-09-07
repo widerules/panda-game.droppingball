@@ -51,12 +51,17 @@ public class PlayingScene extends GameScene implements Const {
 			if (this.gameOver(ball)) {
 				dGame.setStatus(dGame.STATUS_NEW); 
 				// reset game.
-				dGame.setUseLoadedData(false); 
+				dGame.setLoadedData(false); 
 				game.start(); 
 			}
 		}
 	}
 	
+	/**
+	 * To check whether this game should be terminated. If the ball ran out of screen too much, the game is over. 
+	 * @param ball the ball. 
+	 * @return true if game over. 
+	 */
 	private boolean gameOver(Ball ball) {
 		RectF bounds = ball.getBounds(); 
 		int h = dGame.getH(); 

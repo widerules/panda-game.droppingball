@@ -5,6 +5,12 @@ import org.programus.android.game._engine.objects.SavableSprite;
 
 import android.content.res.Resources;
 
+/**
+ * Sprite class for dropping ball game. The class name doesn't mean sprite in dropping. 
+ * This is just to share the friction rate now. 
+ * @author Programus
+ *
+ */
 public abstract class DroppingSprite extends SavableSprite {
 	protected static float frictionRate = -1; 
 	

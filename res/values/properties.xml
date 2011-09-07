@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="gameClass">org.programus.android.game.dropball.DroppingBallGame</string>
-    <item format="integer" type="integer" name="restTime">5</item>
+    <item format="integer" type="integer" name="restTime">0</item>
     <dimen name="ballRadius">10px</dimen>
     <dimen name="frictionRate">.000003px</dimen><color name="foreColor">#000</color>
     <color name="backColor">#fff</color>

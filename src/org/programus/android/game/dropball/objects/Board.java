@@ -10,6 +10,11 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Paint.Style;
 
+/**
+ * Class to represent the boards. 
+ * @author Programus
+ *
+ */
 public class Board extends DroppingSprite implements Const {
 	
 	private static float speed = 0; 
@@ -17,6 +22,12 @@ public class Board extends DroppingSprite implements Const {
 	private Paint fillPaint;
 	private DroppingBallGame game; 
 	
+	/**
+	 * This constructor will generate the rect for the bounds automatically if bGenerateRectData is true. 
+	 * A rect will have a random width and x position. 
+	 * @param game
+	 * @param bGenerateRectData true will generate the rect. 
+	 */
 	public Board(DroppingBallGame game, boolean bGenerateRectData) {
 		this.game = game; 
 		
@@ -43,6 +54,11 @@ public class Board extends DroppingSprite implements Const {
 		}
 	}
 	
+	/**
+	 * This constructor will generate the rect for the bounds automatically. 
+	 * @param game
+	 * @param top the top position of the board. 
+	 */
 	public Board(DroppingBallGame game, float top) {
 		this(game, true); 
 		this.move(0, top); 
@@ -71,7 +87,7 @@ public class Board extends DroppingSprite implements Const {
 		}
 		return alt; 
 	}
-	
+
 	public RectF getExpandedRect(float u) {
 		return new RectF(
 				this.bounds.left - u, 

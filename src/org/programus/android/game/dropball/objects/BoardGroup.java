@@ -18,6 +18,11 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.Log;
 
+/**
+ * The group of all boards in this game. 
+ * @author Programus
+ *
+ */
 public class BoardGroup implements SpriteLike, Savable, Const{
 	private LinkedList<Board> boards = new LinkedList<Board>(); 
 	private DroppingBallGame game; 

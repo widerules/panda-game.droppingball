@@ -12,12 +12,21 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.MotionEvent;
 
+/**
+ * Game class for dropping ball. 
+ * @author Programus
+ *
+ */
 public class DroppingBallGame extends Game implements Const {
+	/** New game status. The value is retrieved from resource. */
 	public final int STATUS_NEW; 
+	/** Paused game status. The value is retrieved from resource. */
 	public final int STATUS_PAUSED; 
+	/** Playing game status. The value is retrieved from resource. */
 	public final int STATUS_PLAYING;
 	
-	private boolean useLoadedData; 
+	/** set true if loaded data successfully. */
+	private boolean loadedData; 
 	private ObjectCollection oc; 
 	
 	public DroppingBallGame(Context context) {
@@ -27,7 +36,9 @@ public class DroppingBallGame extends Game implements Const {
 		STATUS_NEW = context.getResources().getInteger(R.integer.NEW); 
 		STATUS_PAUSED = context.getResources().getInteger(R.integer.PAUSED); 
 		STATUS_PLAYING = context.getResources().getInteger(R.integer.PLAYING); 
+		
 		this.setStatus(STATUS_NEW); 
+		
 		GameScene pausedScene = new PausedScene(this); 
 		this.scenes.put(STATUS_NEW, pausedScene); 
 		this.scenes.put(STATUS_PAUSED, pausedScene); 
@@ -40,12 +51,13 @@ public class DroppingBallGame extends Game implements Const {
 	
 	@Override
 	public void start() {
-		if (!useLoadedData) {
+		if (!loadedData) {
 			this.setStatus(STATUS_NEW); 
 			this.oc.reset(); 
 		} else {
+			// if the score is 0, this is a new game. 
 			this.setStatus(this.oc.getScore().getScore() == 0 ? STATUS_NEW : STATUS_PAUSED); 
-			useLoadedData = false; 
+			loadedData = false; 
 		}
 	}
 	
@@ -68,21 +80,16 @@ public class DroppingBallGame extends Game implements Const {
 	
 	@Override
 	public boolean load(SharedPreferences pref) {
-		this.useLoadedData = this.oc.load(pref); 
-//		if (this.useLoadedData && this.oc.getScore().getScore() == 0) {
-//			this.setStatus(STATUS_PAUSED); 
-//		} else {
-//			this.setStatus(STATUS_NEW); 
-//		}
-		return this.useLoadedData; 
+		this.loadedData = this.oc.load(pref); 
+		return this.loadedData; 
 	}
 
-	public boolean isUseLoadedData() {
-		return useLoadedData;
+	public boolean isLoadedData() {
+		return loadedData;
 	}
 
-	public void setUseLoadedData(boolean useLoadedData) {
-		this.useLoadedData = useLoadedData;
+	public void setLoadedData(boolean useLoadedData) {
+		this.loadedData = useLoadedData;
 	}
 	
 	@Override

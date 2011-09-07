@@ -15,6 +15,11 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 
+/**
+ * This class is to calculate and store score in the game. 
+ * @author Programus
+ *
+ */
 public class ScoreStorage extends SavableSprite implements Const {
 	public final static String SCORE = "score.value"; 
 	public final static String HI_SCORE = "score.hivalue"; 

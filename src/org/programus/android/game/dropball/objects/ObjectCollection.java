@@ -7,6 +7,12 @@ import org.programus.android.game.dropball.DroppingBallGame;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+/**
+ * A collection of the objects in game. 
+ * It mainly include a ball, a board group and a score inside. 
+ * @author Programus. 
+ *
+ */
 public class ObjectCollection implements Savable, Const {
 	private DroppingBallGame game; 
 	private Ball ball; 
