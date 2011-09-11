@@ -98,9 +98,13 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 	private synchronized void paint() {
 		Canvas canvas = this.sfh.lockCanvas(); 
 		if (this.game != null) {
-			this.game.setPaintTime(System.currentTimeMillis()); 
+			long t = System.currentTimeMillis(); 
+			this.game.setPaintTime(t); 
 			this.game.calcFrameData(); 
-			this.game.drawFrame(canvas); 			
+			Log.d(TAG, "calc time:" + (System.currentTimeMillis() - t)); 
+			t = System.currentTimeMillis(); 
+			this.game.drawFrame(canvas); 
+			Log.d(TAG, "draw time:" + (System.currentTimeMillis() - t)); 
 		}
 		
 		sfh.unlockCanvasAndPost(canvas); 

@@ -99,11 +99,14 @@ public class Board extends DroppingSprite implements Const {
 	@Override
 	public void reset() {
 	}
+	
+	public static void speedCalc(long dt) {
+		float a = acceleration - frictionRate * speed * speed * speed;  
+		speed += a * dt; 
+	}
 
 	@Override
 	public void stepCalc(long dt) {
-		float a = acceleration - frictionRate * speed;  
-		speed += a * dt; 
 		this.move(0, -speed); 
 	}
 	

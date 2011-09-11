@@ -13,7 +13,6 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.util.Log;
 
 /**
  * This class is to calculate and store score in the game. 
@@ -32,6 +31,8 @@ public class ScoreStorage extends SavableSprite implements Const {
 	private String currScoreTitle; 
 	private String prevScoreTitle; 
 	private String hiScoreTitle; 
+	
+	private int fps; 
 	
 	private Paint paint;
 	private Game game;
@@ -63,8 +64,8 @@ public class ScoreStorage extends SavableSprite implements Const {
 	@Override
 	public void stepCalc(long dt) {
 		float g = Math.abs((AccData.getInstance().getGy())); 
-		Log.d(TAG, "G=" + g); 
 		long ds = (long)(g * g * dt); 
+		this.fps = (int)(1000 / dt); 
 		this.score += ds; 
 	}
 
@@ -75,7 +76,10 @@ public class ScoreStorage extends SavableSprite implements Const {
 		paint.getTextBounds(scoreString, 0, scoreString.length(), bounds); 
 		int x = 0; 
 		int y = bounds.height(); 
+		paint.setTextAlign(Paint.Align.LEFT); 
 		canvas.drawText(scoreString, x, y, paint); 
+		paint.setTextAlign(Paint.Align.RIGHT); 
+		canvas.drawText(String.valueOf(fps) + "FPS", canvas.getWidth(), y, paint); 
 	}
 	
 	@Override

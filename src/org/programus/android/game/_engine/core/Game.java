@@ -3,6 +3,7 @@ package org.programus.android.game._engine.core;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.programus.android.game._engine.ui.GameSurfaceView;
 import org.programus.android.game._engine.utils.Const;
 
 import android.content.Context;

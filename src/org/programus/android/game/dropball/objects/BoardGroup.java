@@ -1,7 +1,7 @@
 package org.programus.android.game.dropball.objects;
 
-import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 import org.programus.android.game.R;
 import org.programus.android.game._engine.core.Savable;
@@ -74,13 +74,30 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 
 	@Override
 	public void stepCalc(long dt) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				float lastBottom = 0; 
+				synchronized(boards) {
+					lastBottom = boards.size() > 0 ? boards.getLast().getBounds().bottom : game.getH() >> 2; 
+				}
+				if ((game.getH() << 1) - lastBottom >= maxDistance) {
+					float y = 0; 
+					synchronized(boards) {
+						y = (boards.size() > 0 ? boards.getLast().getBounds().bottom : 0) + minDistance + RAND.nextFloat() * (maxDistance - minDistance); 
+					}
+					addBoards(y); 
+				}
+			}
+		}, "Add boards thread").start(); 
+		
+		Board.speedCalc(dt); 
 		int line = -(game.getH() >> 1); 
-		float lastBottom = this.boards.size() > 0 ? this.boards.getLast().getBounds().bottom : game.getH() >> 2; 
-		if ((game.getH() << 1) - lastBottom >= maxDistance) {
-			float y = (this.boards.size() > 0 ? this.boards.getLast().getBounds().bottom : 0) + minDistance + RAND.nextFloat() * (maxDistance - minDistance); 
-			this.addBoards(y); 
+		ListIterator<Board> i = null; 
+		synchronized(this.boards) {
+			i = this.boards.listIterator(); 
 		}
-		for (Iterator<Board> i = this.boards.iterator();i.hasNext();) {
+		while (i.hasNext()) {
 			Board board = i.next(); 
 			if (board.getBounds().bottom < line) {
 				i.remove(); 
@@ -95,6 +112,14 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 		final float EQU_GAP = 1;
 		for (Board board : this.boards) {
 			RectF rect = board.getExpandedRect(r); 
+			if (rect.top - p.y > rect.height()) {
+				// if the board is under the ball and too far, over the loop. 
+				break; 
+			} else if (p.y - rect.bottom > rect.height()) {
+				// if the board is above the ball and too far, check next board. 
+				continue; 
+			}
+			
 			if (rect.left < p.x && rect.right > p.x) {
 				if (Math.abs(rect.top - p.y) < EQU_GAP && (speed.y >= -Board.getSpeed())) {
 					side = SIDE_ABOVE; 
@@ -136,6 +161,15 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 			
 			// Check top line
 			p.y = rect.top; 
+			
+			if (rect.top - maxY > rect.height()) {
+				// if the board is under the ball and too far, over the loop. 
+				break; 
+			} else if (minY - rect.bottom > rect.height()) {
+				// if the board is above the ball and too far, check next board. 
+				continue; 
+			}
+			
 			if (speed.y >= -Board.getSpeed() && rect.bottom >= minY && p.y <= maxY) {
 				p.x = (p.y - b) / a; 
 				if (((p.x > minX && p.x < maxX) || rect.contains(p1.x, p1.y)) && p.x > rect.left && p.x <= rect.right) {
@@ -186,7 +220,6 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 				}
 			}
 		}
-		
 		return null; 
 	}
 	
@@ -194,11 +227,15 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 		while (y < (game.getH() << 1)) {
 			Board brd = new Board(this.game, y); 
 			Log.d(TAG, "Board created:" + brd); 
-			this.boards.add(brd); 
+			synchronized(this.boards) {
+				this.boards.add(brd); 
+			}
 			Board alt = brd.getAltBoard(); 
 			Log.d(TAG, "    Alt Board:" + alt); 
 			if (alt != null) {
-				this.boards.add(alt); 
+				synchronized(this.boards) {
+					this.boards.add(alt); 
+				}
 			}
 			y += brd.getBounds().height() + minDistance + RAND.nextFloat() * (maxDistance - minDistance); 
 		}

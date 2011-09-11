@@ -7,6 +7,7 @@ import java.util.List;
 import org.programus.android.game.R;
 import org.programus.android.game._engine.data.AccData;
 import org.programus.android.game._engine.utils.Const;
+import org.programus.android.game._engine.utils.RectPool;
 import org.programus.android.game.dropball.DroppingBallGame;
 
 import android.content.Context;
@@ -41,6 +42,9 @@ public class Ball extends DroppingSprite implements Const {
 	private float r; 
 	/** speed in unit: px/second */
 	private PointF speed; 
+	
+	/** A rect pool to get/return all rects */
+	private RectPool rectPool = RectPool.getInstance(); 
 	
 	/** 
 	 * Which side of any board the ball is moving on. 0 means the ball is alone. 
@@ -84,7 +88,7 @@ public class Ball extends DroppingSprite implements Const {
 	/** You cannot get shadows more than this */
 	private int maxShadowNum = 100; 
 	/** If you got a shadow effect, you must have shadows more than this */
-	private int minShadowNum = 8; 
+	private int minShadowNum = 90; 
 	private int maxShadowAlpha = 0x8f; 
 	private int minShadowAlpha = 0x00; 
 	/** Leave a shadow every <i>createShadowInterval</i> frames */
@@ -133,7 +137,9 @@ public class Ball extends DroppingSprite implements Const {
 		// reset the position. 
 		this.moveTo(w >> 1, game.getH() >> 3); 
 		this.speed.set(0, 0); 
-		this.shadows.clear(); 
+		while(!this.shadows.isEmpty()) {
+			rectPool.returnRect(this.shadows.remove(0)); 
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -200,7 +206,7 @@ public class Ball extends DroppingSprite implements Const {
 			this.moveShadows(); 
 			// detect whether it is the time to leave a new shadow. 
 			if (this.timeCounter >= this.createShadowInterval) {
-				this.shadows.add(new RectF(this.bounds)); 
+				this.shadows.add(rectPool.getRect(this.bounds)); 
 				this.timeCounter = 0;
 			}
 		} else {
@@ -221,7 +227,7 @@ public class Ball extends DroppingSprite implements Const {
 		// remove old shadows. 
 		synchronized(this.shadows) {
 			while (this.shadows.size() > n) {
-				shadows.remove(0); 
+				rectPool.returnRect(this.shadows.remove(0)); 
 			}
 		}
 		
@@ -281,15 +287,16 @@ public class Ball extends DroppingSprite implements Const {
 		RectF altBounds = null; 
 		int w = canvas.getWidth(); 
 		if (bounds.left < 0) {
-			altBounds = new RectF(bounds); 
+			altBounds = rectPool.getRect(bounds); 
 			altBounds.offset(w, 0); 
 		}
 		if (bounds.right > w) {
-			altBounds = new RectF(bounds); 
+			altBounds = rectPool.getRect(bounds); 
 			altBounds.offset(-w, 0); 
 		}
 		if (altBounds != null) {
 			this.drawDecorationAndBall(canvas, altBounds); 
+			rectPool.returnRect(altBounds); 
 		}
 	}
 	
@@ -306,15 +313,16 @@ public class Ball extends DroppingSprite implements Const {
 			RectF alt = null; 
 			int w = canvas.getWidth(); 
 			if (rect.left < 0) {
-				alt = new RectF(rect); 
+				alt = rectPool.getRect(rect); 
 				alt.offset(w, 0); 
 			}
 			if (rect.right > w) {
-				alt = new RectF(rect); 
+				alt = rectPool.getRect(rect); 
 				alt.offset(-w, 0); 
 			}
 			if (alt != null) {
 				canvas.drawOval(alt, paint); 
+				rectPool.returnRect(alt); 
 			}
 		}
 		paint.setAlpha(oldAlpha); 
