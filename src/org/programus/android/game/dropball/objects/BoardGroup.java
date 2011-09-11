@@ -25,6 +25,7 @@ import android.util.Log;
  */
 public class BoardGroup implements SpriteLike, Savable, Const{
 	private LinkedList<Board> boards = new LinkedList<Board>(); 
+	private LinkedList<Board> idleBoards = new LinkedList<Board>(); 
 	private DroppingBallGame game; 
 	
 	private static float minDistance; 
@@ -55,7 +56,9 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 	private void initBoards() {
 		int h = game.getH(); 
 		int y = h >> 2; 
-		this.boards.clear(); 
+		while (!this.boards.isEmpty()) {
+			this.idleBoards.add(this.boards.removeFirst()); 
+		}
 		Board.setSpeed(0); 
 		this.addBoards(y); 
 	}
@@ -100,6 +103,7 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 		while (i.hasNext()) {
 			Board board = i.next(); 
 			if (board.getBounds().bottom < line) {
+				this.idleBoards.addFirst(board); 
 				i.remove(); 
 			} else {
 				board.stepCalc(dt); 
@@ -167,7 +171,7 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 				continue; 
 			}
 						
-			Log.d(TAG, "before:" + p.x + "," + p.y + "\t/Rect:" + rect + "\tp1:" + p1.x + "," + p1.y + "/p2:" + p2.x + "," + p2.y + "/speed:" + speed.x + "," + speed.y + "/a=" + a + "/b=" + b); 
+//			Log.d(TAG, "before:" + p.x + "," + p.y + "\t/Rect:" + rect + "\tp1:" + p1.x + "," + p1.y + "/p2:" + p2.x + "," + p2.y + "/speed:" + speed.x + "," + speed.y + "/a=" + a + "/b=" + b); 
 			// Check top line
 			p.y = rect.top; 
 			if (speed.y >= -Board.getSpeed() && rect.bottom >= minY && p.y <= maxY) {
@@ -226,12 +230,18 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 	
 	private void addBoards(float y) {
 		while (y < (game.getH() << 1)) {
-			Board brd = new Board(this.game, y); 
+			Board brd = null; 
+			if (this.idleBoards.isEmpty()) {
+				brd = new Board(this.game, y); 
+			} else {
+				brd = idleBoards.removeFirst().generateRandomXPosition(y); 
+				brd.reset(); 
+			}
 			Log.d(TAG, "Board created:" + brd); 
 			synchronized(this.boards) {
 				this.boards.add(brd); 
 			}
-			Board alt = brd.getAltBoard(); 
+			Board alt = brd.getAltBoard(this.idleBoards.isEmpty() ? null : this.idleBoards.removeFirst()); 
 			Log.d(TAG, "    Alt Board:" + alt); 
 			if (alt != null) {
 				synchronized(this.boards) {
@@ -240,6 +250,7 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 			}
 			y += brd.getBounds().height() + minDistance + RAND.nextFloat() * (maxDistance - minDistance); 
 		}
+		Log.d(TAG, "Boards: " + boards.size() + "/Idle Boards:" + idleBoards.size()); 
 	}
 
 	@Override
@@ -248,9 +259,11 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 		if (ret) {
 			Board.setSpeed(pref.getFloat(BOARD_SPEED, 0)); 
 			final int n = pref.getInt(BOARD_NUM, 0); 
-			this.boards.clear(); 
+			while (!this.boards.isEmpty()) {
+				this.idleBoards.add(this.boards.removeFirst()); 
+			}
 			for (int i = 0; i < n; i++) {
-				Board b = new Board(this.game, false); 
+				Board b = this.idleBoards.isEmpty() ? new Board(this.game, false) : this.idleBoards.removeFirst(); 
 				RectF r = b.getBounds(); 
 				String keyPrefix = BOARDS + i; 
 				r.set(
