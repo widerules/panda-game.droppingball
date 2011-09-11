@@ -101,10 +101,10 @@ public class GameSurfaceView extends SurfaceView implements Runnable, Callback, 
 			long t = System.currentTimeMillis(); 
 			this.game.setPaintTime(t); 
 			this.game.calcFrameData(); 
-			Log.d(TAG, "calc time:" + (System.currentTimeMillis() - t)); 
+//			Log.d(TAG, "calc time:" + (System.currentTimeMillis() - t)); 
 			t = System.currentTimeMillis(); 
 			this.game.drawFrame(canvas); 
-			Log.d(TAG, "draw time:" + (System.currentTimeMillis() - t)); 
+//			Log.d(TAG, "draw time:" + (System.currentTimeMillis() - t)); 
 		}
 		
 		sfh.unlockCanvasAndPost(canvas); 

@@ -153,14 +153,11 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 		float minY = Math.min(p1.y, p2.y); 
 		float maxY = Math.max(p1.y, p2.y); 
 		
-		final float DELTA = 0.1F; 
+		final float DELTA = 0F; 
 		
 		for (Board board : this.boards) {
 			RectF rect = board.getExpandedRect(r); 
 			PointF p = new PointF(); 
-			
-			// Check top line
-			p.y = rect.top; 
 			
 			if (rect.top - maxY > rect.height()) {
 				// if the board is under the ball and too far, over the loop. 
@@ -169,12 +166,16 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 				// if the board is above the ball and too far, check next board. 
 				continue; 
 			}
-			
+						
+			Log.d(TAG, "before:" + p.x + "," + p.y + "\t/Rect:" + rect + "\tp1:" + p1.x + "," + p1.y + "/p2:" + p2.x + "," + p2.y + "/speed:" + speed.x + "," + speed.y + "/a=" + a + "/b=" + b); 
+			// Check top line
+			p.y = rect.top; 
 			if (speed.y >= -Board.getSpeed() && rect.bottom >= minY && p.y <= maxY) {
 				p.x = (p.y - b) / a; 
-				if (((p.x > minX && p.x < maxX) || rect.contains(p1.x, p1.y)) && p.x > rect.left && p.x <= rect.right) {
+//				Log.d(TAG, "p: " + p.x + "," + p.y + "/contains in rect:" + rect.contains(p1.x, p1.y)); 
+				if ((p.x > minX && p.x < maxX && p.x > rect.left && p.x <= rect.right) || rect.contains(p1.x, p1.y)) {
 					speed.y = -Board.getSpeed(); 
-					Log.d(TAG, "top:" + p.x + "," + p.y + "\t/Rect:" + rect + "\tp1:" + p1.x + "," + p1.y + "/p2:" + p2.x + "," + p2.y + "/speed:" + speed.x + "," + speed.y + "/a=" + a + "/b=" + b); 
+//					Log.d(TAG, "top:" + p.x + "," + p.y + "\t/Rect:" + rect + "\tp1:" + p1.x + "," + p1.y + "/p2:" + p2.x + "," + p2.y + "/speed:" + speed.x + "," + speed.y + "/a=" + a + "/b=" + b); 
 					p.x = p2.x; 
 					p.y -= DELTA; 
 					return p; 
@@ -187,7 +188,7 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 				p.x = (p.y - b) / a; 
 				if (p.x > minX && p.x < maxX && p.x >= rect.left && p.x < rect.right) {
 					speed.y = -Board.getSpeed(); 
-					Log.d(TAG, "bottom:" + p.x + "," + p.y + "\t/Rect:" + rect + "\tp1:" + p1.x + "," + p1.y + "/p2:" + p2.x + "," + p2.y + "/speed:" + speed.x + "," + speed.y + "/a=" + a + "/b=" + b); 
+//					Log.d(TAG, "bottom:" + p.x + "," + p.y + "\t/Rect:" + rect + "\tp1:" + p1.x + "," + p1.y + "/p2:" + p2.x + "," + p2.y + "/speed:" + speed.x + "," + speed.y + "/a=" + a + "/b=" + b); 
 					p.x = p2.x; 
 					p.y += DELTA;
 					return p; 
@@ -200,7 +201,7 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 				p.y = a * p.x + b; 
 				if (p.y > minY && p.y < maxY && p.y >= rect.top && p.y < rect.bottom) {
 					speed.x = -speed.x / 2; 
-					Log.d(TAG, "left:" + p.x + "," + p.y + "\t/Rect:" + rect + "\tp1:" + p1.x + "," + p1.y + "/p2:" + p2.x + "," + p2.y + "/speed:" + speed.x + "," + speed.y + "/a=" + a + "/b=" + b); 
+//					Log.d(TAG, "left:" + p.x + "," + p.y + "\t/Rect:" + rect + "\tp1:" + p1.x + "," + p1.y + "/p2:" + p2.x + "," + p2.y + "/speed:" + speed.x + "," + speed.y + "/a=" + a + "/b=" + b); 
 					p.y = p2.y; 
 					p.x -= DELTA; 
 					return p; 
@@ -213,7 +214,7 @@ public class BoardGroup implements SpriteLike, Savable, Const{
 				p.y = a * p.x + b; 
 				if (p.y > minY && p.y < maxY && p.y > rect.top && p.y <= rect.bottom) {
 					speed.x = -speed.x / 2; 
-					Log.d(TAG, "right:" + p.x + "," + p.y + "\t/Rect:" + rect + "\tp1:" + p1.x + "," + p1.y + "/p2:" + p2.x + "," + p2.y + "/speed:" + speed.x + "," + speed.y + "/a=" + a + "/b=" + b); 
+//					Log.d(TAG, "right:" + p.x + "," + p.y + "\t/Rect:" + rect + "\tp1:" + p1.x + "," + p1.y + "/p2:" + p2.x + "," + p2.y + "/speed:" + speed.x + "," + speed.y + "/a=" + a + "/b=" + b); 
 					p.y = p2.y; 
 					p.x += DELTA; 
 					return p; 
